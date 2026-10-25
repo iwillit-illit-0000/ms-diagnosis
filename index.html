@@ -1,0 +1,471 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ガンダムMS診断</title>
+<style>
+:root{color-scheme:dark;--bg:#101820;--panel:#1b2935;--accent:#67d7ff;--text:#edf5fa;--muted:#aabac6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;line-height:1.65}
+main{max-width:760px;margin:auto;padding:24px 16px 60px}
+h1{font-size:clamp(26px,5vw,38px);line-height:1.3}
+h2{font-size:22px}
+.sub,.muted{color:var(--muted)}
+.panel{background:var(--panel);border:1px solid #354957;border-radius:14px;padding:22px;margin:18px 0}
+button{font:inherit;cursor:pointer;border-radius:9px;padding:12px 16px;border:1px solid #526a7b;background:#263b4b;color:var(--text)}
+button:hover{border-color:var(--accent)}
+button:focus-visible{outline:3px solid var(--accent)}
+.primary{background:#087ca5;border-color:#40c8f2;font-weight:700}
+.answers{display:grid;gap:10px;margin-top:18px}
+.answer{text-align:left;padding:15px}
+.answer.selected{border:2px solid var(--accent);background:#174258}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;margin-top:20px}
+.progress{height:8px;background:#334553;border-radius:8px;overflow:hidden}
+.progress div{height:100%;background:var(--accent);transition:width .2s}
+.stat{display:grid;grid-template-columns:110px 1fr 36px;gap:10px;align-items:center;margin:12px 0}
+.bar{height:10px;background:#334553;border-radius:8px;overflow:hidden}
+.bar div{height:100%;background:var(--accent)}
+.big{font-size:28px;font-weight:800}
+.machine-image{display:block;width:100%;max-width:560px;max-height:420px;object-fit:contain;margin:18px auto;border-radius:12px;background:#101820;border:1px solid #354957}
+.machine-image[hidden]{display:none}
+.gunpla-link{display:inline-block;margin:8px 0 18px;color:var(--accent);font-weight:700}
+.badge{display:inline-block;border:1px solid #557080;border-radius:99px;padding:3px 10px;margin:3px;font-size:13px}
+.hidden{display:none}
+footer{color:var(--muted);font-size:13px;margin-top:30px}
+@media(max-width:480px){main{padding:16px 12px}.panel{padding:16px}.stat{grid-template-columns:90px 1fr 30px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<p class="sub">MOBILE SUIT PERSONALITY ANALYSIS</p>
+<h1>ガンダム MS診断</h1>
+<p>30問の回答から、あなたの戦闘スタイルに合うモビルスーツを1機選出します。</p>
+</header>
+
+<section id="intro" class="panel">
+<h2>診断について</h2>
+<ul>
+<li>全30問・各4択</li>
+</ul>
+<p class="muted">機体の能力値は診断用の暫定評価です。公式の性能数値ではありません。</p>
+<button class="primary" id="start">診断を始める</button>
+</section>
+
+<section id="quiz" class="panel hidden">
+<div class="row" style="margin-top:0">
+<span id="counter">Q1 / 30</span>
+<span id="answered" class="muted">回答済み 0 / 30</span>
+</div>
+<div class="progress"><div id="progress" style="width:0%"></div></div>
+<h2 id="question"></h2>
+<p id="hint" class="muted"></p>
+<div id="answers" class="answers"></div>
+<div class="row">
+<button id="back">← 前の質問</button>
+<button id="next" class="primary">次の質問 →</button>
+</div>
+</section>
+
+<section id="result" class="panel hidden" aria-live="polite">
+<p class="sub">YOUR MOBILE SUIT</p>
+<h2>診断結果</h2>
+<div id="machineName" class="big"></div>
+<p id="machineId" class="muted"></p>
+<img id="machineImage" class="machine-image" alt="" hidden>
+<h3>機体解説</h3>
+<p id="description"></p>
+<p><a id="gunplaLink" class="gunpla-link" href="#" target="_blank" rel="noopener noreferrer">このMSのガンプラを探す ↗</a></p>
+<h3>あなたの戦闘傾向</h3>
+<div id="stats"></div>
+<p id="reason" class="muted"></p>
+<button id="restart" class="primary">もう一度診断する</button>
+</section>
+
+<footer>MS診断・試作版 / 機体評価と質問文は今後調整できます。</footer>
+</main>
+
+<script>
+"use strict";
+
+const AXES=["melee","shooting","mobility","defense","firepower","versatility"];
+const LABELS={melee:"近接",shooting:"射撃",mobility:"機動",defense:"防御・継戦",firepower:"火力・突破",versatility:"汎用性"};
+const POPULAR=new Set(["RX-78-2","MS-06","MSN-02","MSZ-006","RX-93","MSN-04","MSZ-010","RX-0","RX-0-2","RX-105"]);
+
+// 各回答の加点。形式は [近接,射撃,機動,防御,火力,汎用]
+const M=[2,0,0,0,0,0],S=[0,2,0,0,0,0],V=[0,0,0,0,0,2],
+      F=[0,0,0,0,2,0],D=[0,0,0,2,0,0],G=[0,0,1,1,0,0],
+      MV=[1,0,1,0,0,0],SV=[0,1,0,0,0,1],
+      MD=[1,0,0,0,1,0],VD=[0,0,0,1,0,1],
+      FV=[0,0,0,0,1,1],MS=[1,1,0,0,0,0],GV=[0,0,1,0,0,1];
+
+const rawQuestions=[
+["戦闘で最も重視したいものは？",["圧倒的な火力","素早い機動力","状況への対応力","防御と生存性"],[F,G,V,D]],
+["理想の戦い方は？",["一撃で決着をつける","動きながら攻める","状況に応じて戦法を変える","相手の攻撃を受け止める"],[F,MV,V,D]],
+["得意にしたい距離は？",["近距離","中〜遠距離","距離を選ばない","一撃が届く射程"],[M,S,V,F]],
+["敵が多数いる場合は？",["広範囲を攻撃する","高速で翻弄する","敵に合わせて対応する","守りを固めて戦う"],[F,G,V,VD]],
+["戦場で頼りたい能力は？",["高い攻撃力","機動性と接近能力","多様な装備と戦術","耐久力と継戦能力"],[F,MV,V,VD]],
+["装備を選ぶなら？",["大火力兵器","近接武器と機動力","複数の戦況に対応できる装備","防御を重視した装備"],[F,MV,V,VD]],
+["敵エースとの一騎打ちなら？",["近接戦で勝負","機動力で翻弄","相手に合わせて戦う","射程と防御を活用する"],[M,G,MV,SV]],
+["遠距離の敵には？",["最大火力で撃ち抜く","機動力を使って射線を確保","精密射撃で対応","状況を見て距離を調整"],[F,GV,S,SV]],
+["作戦で優先するものは？",["敵の主力を撃破","先手を取る","任務に応じて動く","味方を守りながら進む"],[F,MV,V,VD]],
+["理想の決着は？",["圧倒的な火力で撃破","速攻で制圧","戦況を読んで勝つ","被害を抑えて勝つ"],[F,G,SV,D]],
+["敵の防御が堅い場合は？",["火力で突破する","弱点へ素早く接近","武装や戦術を切り替える","安全を確保して攻略"],[MD,G,V,VD]],
+["味方との連携では？",["火力支援を担当","素早く援護に向かう","役割を柔軟に変える","味方を守る"],[MD,G,V,VD]],
+["未知の敵と遭遇したら？",["先制攻撃する","機動力で様子を見る","敵に合わせて戦い方を変える","まず安全を確保する"],[MD,G,V,D]],
+["戦闘で最も避けたいのは？",["火力不足","動けないこと","対応できる手段がないこと","撃墜されること"],[F,G,V,D]],
+["単独任務に向くのは？",["高火力で押し切る機体","機動力で切り抜ける機体","幅広い任務に対応する機体","長時間活動できる機体"],[F,G,V,VD]],
+["戦闘が長引いた場合は？",["攻撃を集中して決着","機動力を保ち続ける","戦術を切り替える","防御と継戦能力を優先"],[MD,GV,V,VD]],
+["敵の数で不利なときは？",["火力で数を減らす","高速で分断する","地形や装備を活用する","防御を固めて耐える"],[MD,G,SV,D]],
+["戦場での理想的な役割は？",["突破役","遊撃役","万能な対応役","防衛役"],[MD,G,V,D]],
+["武装構成で魅力を感じるのは？",["近接と火力の両立","機動性と装備の柔軟性","射撃と多用途性","防御と安定性"],[MD,GV,SV,VD]],
+["作戦変更を求められたら？",["火力で押し通す","素早く再配置する","新しい作戦に対応する","味方を守る形に変える"],[F,G,V,VD]],
+["理想の機体特性は？",["攻撃性能に優れる","俊敏で扱いやすい","多くの局面に対応できる","生存性に優れる"],[F,G,V,D]],
+["自分の戦闘スタイルに近いのは？",["攻め続ける","機動力で勝機を作る","状況を見て最善手を選ぶ","守りを崩さない"],[F,G,V,D]],
+["直感や感応能力について？",["非常に鋭いと感じる","ときどき直感が当たる","特別な感覚はあまりない","論理や経験を重視する"],null,"nt"],
+["他者の気配や意図を感じることは？",["強く感じ取れる","少し感じることがある","ほとんどない","判断材料にしない"],null,"nt"],
+["説明しにくい直感が戦闘で役立つなら？",["積極的に活用する","補助的に活用する","頼らず技術で戦う","経験と分析を優先する"],null,"nt"],
+["最後の局面で選ぶのは？",["最大火力で決める","機動力で勝機をつかむ","状況に合わせて戦う","防御を優先する"],[F,G,V,D]],
+["新しい戦術を試すなら？",["火力を活かした戦術","高速戦闘の戦術","複数の戦法を組み合わせる","安定した守りの戦術"],[F,G,V,D]],
+["機体に求める強みは？",["近接と火力","機動性と汎用性","射撃と汎用性","防御と汎用性"],[MD,GV,SV,VD]],
+["危険な作戦に参加するなら？",["突破力を重視","速度で危険を避ける","状況対応力を重視","生存性を最優先"],[MD,G,V,VD]],
+["最終的に理想とする勝利は？",["圧倒的な力で勝つ","技量と速度で勝つ","柔軟な判断で勝つ","耐え抜いて勝つ"],[F,G,V,D]]
+];
+
+const NT_POINTS=[[2,1,1,0],[2,1,0,0],[2,1,0,0]];
+const QUESTIONS=rawQuestions.map((q,i)=>({
+ id:i+1,text:q[0],
+ options:q[1].map((label,j)=>({
+ label,
+ scores:q[2]?Object.fromEntries(AXES.map((axis,k)=>[axis,q[2][j][k]]).filter(([,v])=>v!==0)): {},
+ ...(q[3]==="nt"?{ntPoints:NT_POINTS[i-22][j]}:{})
+ }))
+}));
+
+// 機体プロフィール：[近接,射撃,機動,防御,火力,汎用,サイコミュ依存度]
+const P={
+ balanced:[4,4,4,4,4,5,1], tank:[2,3,1,5,5,2,1],
+ artillery:[2,5,2,3,4,3,1], general:[3,3,3,3,3,5,1],
+ melee:[5,2,4,3,3,3,1], heavy:[3,4,2,5,5,2,1],
+ fast:[4,4,5,3,4,4,1], transform:[3,4,5,3,4,4,1],
+ psy:[3,5,4,3,4,2,5], psyHeavy:[3,5,3,4,5,2,5],
+ boss:[2,5,1,5,5,1,5], elite:[5,5,5,4,5,4,2],
+ support:[2,5,2,3,3,3,1], aquatic:[3,3,3,4,3,2,1]
+};
+
+const DESCRIPTIONS = {
+  "RX-78-2": "地球連邦軍のV作戦で開発された試作MS。高い基本性能と多彩な武装を備え、近接・射撃のどちらにも対応できるバランス型。",
+  "RX-75-4": "長距離支援用の戦車型MS。履帯による地上走行と長射程砲を活かし、後方から味方を支援する。",
+  "RX-77-2": "中距離支援を担う砲撃型MS。重装甲とキャノン砲を備え、前線で味方を援護しながら射撃戦を行う。",
+  "RB-79": "作業用ポッドを改修した簡易兵器。機動性や防御力はMSに及ばず、集団での支援運用に向く。",
+  "RGM-79": "連邦軍の主力量産MS。扱いやすさと汎用性を重視し、幅広い任務に対応する。",
+  "MS-06": "ジオン公国軍を代表する量産MS。武装やバリエーションが豊富で、運用環境に応じて柔軟に戦える。",
+  "MS-07": "ヒート・ロッドやヒート・サーベルを用いる陸戦向けMS。接近戦で相手を拘束し、格闘戦に持ち込む。",
+  "MS-09": "高いホバー走行能力を持つ陸戦MS。高速移動と重火器を活かし、素早く接近して攻撃する。",
+  "MS-14A": "高性能な量産MS。ビーム兵器を含む武装と高い基本性能を備え、射撃・格闘の双方をこなす。",
+  "YMS-15": "格闘戦を重視して開発された試作MS。シールドとビーム・サーベルを活かし、接近戦で相手を追い詰める。",
+  "MSM-04": "水陸両用MS。小型で隠密行動にも向き、沿岸や水中など特殊な環境での作戦に対応する。",
+  "MSM-07": "水陸両用MS。腕部のクローや射撃兵器を備え、水中からの接近や奇襲を得意とする。",
+  "MSM-10": "大型の水陸両用MS。高い火力と独特の機体構造を持ち、火力・防御を活かした運用に向く。",
+  "MSN-02": "ニュータイプ専用機。多数の腕部兵装とオールレンジ攻撃能力を持ち、遠隔攻撃を交えた戦闘を行う。",
+  "MA-08": "大型の宇宙用MA。大出力ビーム兵器と強固な防御を備え、拠点や艦隊に対して圧倒的な火力を発揮する。",
+  "MAM-07": "水中戦を想定した大型MA。高い水中機動性と魚雷などの兵装を用い、海中から敵艦や機体を攻撃する。",
+  "MAN-08": "ニュータイプ用の大型モビルアーマー。ビットによるオールレンジ攻撃を得意とする。",
+  "RMS-099": "エゥーゴで運用された高性能MS。装甲や推進系を重視し、射撃・格闘の双方に対応できる。",
+  "MSN-00100": "高い機動性を特徴とするエース向けMS。優れた運動性を活かし、機動戦で主導権を握る。",
+  "MSK-008": "地上戦向けに調整されたMS。バランスのよい性能と武装で、前線の汎用的な任務をこなす。",
+  "MSA-005": "可変機構を備えた支援用MS。MA形態への変形で移動力を確保し、救難・回収任務にも対応する。",
+  "MSZ-006": "ウェイブライダー形態へ変形できる高性能可変MS。高い機動力と多彩な武装を持ち、戦闘形態を切り替える。",
+  "RX-178": "ムーバブルフレームを採用した試作MS。基本性能と操縦性のバランスがよく、幅広い戦闘に対応する。",
+  "RMS-108": "標準的な武装と性能を備えた量産MS。部隊運用で安定した働きをする。",
+  "RMS-117": "高い機動性と格闘能力を備えるMS。接近戦にも射撃戦にも対応し、機敏な立ち回りを得意とする。",
+  "RX-110": "MA形態へ変形できる可変MS。機動性と火力を兼ね備え、変形を利用して接近・離脱を切り替える。",
+  "RX-139": "独特の可変機構を持つMS。変形による機動力と海ヘビなどの装備を活かし、敵機を翻弄する。",
+  "RMS-154": "シンプルな構造と扱いやすさを重視した量産MS。基本性能を活かした堅実な戦闘を行う。",
+  "RX-160": "大気圏内での飛行能力を持つMS。大型の推進器と高い機動性を活かし、空中戦や高速接近を得意とする。",
+  "ORX-005": "高い推力と可変機構を備える試作MS。高速移動と強力な射撃兵装を活かした強襲戦に向く。",
+  "NRX-044": "MA形態への変形機構を持つMS。大気圏内での飛行と射撃を組み合わせ、機動力を活かして戦う。",
+  "NRX-055": "可変機構を備えた大型MS。独特の機体構造とサイコミュ系装備を持つ特殊機。",
+  "MRX-009": "巨大なサイコ・ガンダム。強力な火器と重装甲を持ち、拠点制圧や広範囲攻撃に向く。",
+  "PMX-000": "可変機構を持つ大型MS。高い推力と航続能力を活かし、機動力と火力を組み合わせる。",
+  "PMX-001": "多数のミサイルや大型火器を備えた重武装MS。支援・制圧射撃を得意とする。",
+  "PMX-003": "高い機動性と近接戦闘能力を持つMS。多数のスラスターによる機敏な動きと格闘能力を活かす。",
+  "AMX-003": "簡易的な可変機構を持つ量産MS。複数の形態を使い分け、コストと運用性を重視する。",
+  "AMX-004": "ニュータイプ用MS。ファンネルによるオールレンジ攻撃と高い機動性を備える。",
+  "MSZ-010": "高出力のビーム兵器と重武装を備えた大型MS。高火力で敵を突破する戦い方に優れる。",
+  "AMA-01X": "可変機構を持つ支援用機体。高速移動形態と火力を組み合わせ、奇襲や局地攻撃に向く。",
+  "AMX-008": "可変機構を備えたMS。移動形態を切り替えながら戦場を移動し、射撃を中心に戦う。",
+  "AMX-009": "重武装と格闘能力を持つMS。大型の腕部兵装や近接武器を活かし、前線で押し込む。",
+  "AMX-014": "多数の火器と準サイコミュ兵装を備えた高性能MS。射撃戦と高火力攻撃を軸に戦う。",
+  "AMX-015": "ニュータイプ用の重武装MS。多数のファンネルと強力な火器を備え、広範囲への攻撃を行う。",
+  "AMX-101": "近接戦闘を重視したMS。腕部の武装や格闘能力を活かし、前線で敵機に接近して戦う。",
+  "AMX-102": "ミサイルを多数搭載する支援MS。弾幕による制圧や味方の攻撃支援を得意とする。",
+  "AMX-103": "サイコミュ系兵装を備えたMS。遠隔操作兵器を活用して攻撃方向を増やし、敵の防御を崩す。",
+  "AMX-104": "騎士風の意匠を持つ格闘型MS。ビーム・サーベルや槍状武器を用いた接近戦に向く。",
+  "AMX-107": "MS形態と分離・変形形態を使い分ける可変MS。機動力と武装の組み合わせで多様な戦況に対応する。",
+  "AMX-109": "水陸両用MS。水中での活動に適した構造と武装を持ち、水辺や水中での戦闘を得意とする。",
+  "RGZ-91": "Ζ系の技術を取り入れた可変MS。BWS装着時に高い火力と機動力を発揮する。",
+  "RX-93": "フィン・ファンネルを備えた高性能MS。射撃・格闘に加え、オールレンジ攻撃と防御用バリアを活かせる。",
+  "AMS-119": "ネオ・ジオンの主力量産MS。信頼性と汎用性を重視し、多様な任務に投入される。",
+  "MSN-03": "ファンネルを装備したニュータイプ向けMS。高い機動性と遠隔攻撃を組み合わせる。",
+  "MSN-04": "高出力と高機動を両立した指揮官用MS。ファンネルを含む多彩な武装で格闘・射撃の双方に優れる。",
+  "RX-0": "NT-Dシステムを搭載した高性能MS。条件が整うと性能を大きく変化させ、サイコミュ兵器への対抗能力も発揮する。",
+  "RX-0-2": "ユニコーンガンダム2号機。NT-Dシステムを搭載し、変身後の高い機動性と攻撃性能を活かす。",
+  "RGZ-95": "Ζ系の技術を用いた可変量産MS。MS形態と変形形態を活かし、部隊運用と機動戦の両立を図る。",
+  "NZ-666": "多数のバインダーとファンネルを備えた大型MS。高い防御力とオールレンジ攻撃能力を持つ。",
+  "AMS-129": "ギラ・ドーガ系の発展機。標準的な武装と扱いやすさを重視し、部隊の主力として運用される。",
+  "MSN-06S": "高い機動性と強力な武装を備えた指揮官用MS。高速戦闘と射撃・格闘を組み合わせた攻めが特徴。",
+  "NZ-999": "シナンジュを中核とする巨大な機動兵器。多数の兵装を持ち、通常MSとは異なる大規模運用を想定する。",
+  "RX-105": "ミノフスキー・フライトを搭載した大型MS。大気圏内での飛行能力と強力な武装を活かす。",
+  "TX-ff104": "特殊な機構と高い火力を持つ大型機体。診断では特殊兵装・感応能力寄りの機体として扱う。"
+};
+
+// [型式番号,名称,プロフィール]
+const RAW=[
+["RX-78-2","ガンダム","balanced"],["RX-75-4","ガンタンク","artillery"],
+["RX-77-2","ガンキャノン","artillery"],["RB-79","ボール","support"],
+["RGM-79","ジム","general"],["MS-06","ザクII","general"],
+["MS-07","グフ","melee"],["MS-09","ドム","fast"],
+["MS-14A","ゲルググ","balanced"],["YMS-15","ギャン","melee"],
+["MSM-04","アッガイ","aquatic"],["MSM-07","ズゴック","aquatic"],
+["MSM-10","ゾック","tank"],["MSN-02","ジオング","psy"],
+["MA-08","ビグ・ザム","boss"],["MAM-07","グラブロ","aquatic"],
+["MAN-08","エルメス","psy"],["RMS-099","リック・ディアス","balanced"],
+["MSN-00100","百式","fast"],["MSK-008","ディジェ","balanced"],
+["MSA-005","メタス","transform"],["MSZ-006","Ζガンダム","transform"],
+["RX-178","ガンダムMk-II","balanced"],["RMS-108","マラサイ","general"],
+["RMS-117","ガルバルディβ","fast"],["RX-110","ガブスレイ","transform"],
+["RX-139","ハンブラビ","transform"],["RMS-154","バーザム","general"],
+["RX-160","バイアラン","fast"],["ORX-005","ギャプラン","transform"],
+["NRX-044","アッシマー","transform"],["NRX-055","バウンド・ドック","psy"],
+["MRX-009","サイコガンダム","boss"],["PMX-000","メッサーラ","transform"],
+["PMX-001","パラス・アテネ","heavy"],["PMX-003","ジ・O","elite"],
+["AMX-003","ガザC","transform"],["AMX-004","キュベレイ","psy"],
+["MSZ-010","ΖΖガンダム","heavy"],["AMA-01X","ジャムル・フィン","transform"],
+["AMX-008","ガ・ゾウム","transform"],["AMX-009","ドライセン","melee"],
+["AMX-014","ドーベン・ウルフ","psyHeavy"],["AMX-015","ゲーマルク","psyHeavy"],
+["AMX-101","ガルスJ","melee"],["AMX-102","ズサ","support"],
+["AMX-103","ハンマ・ハンマ","psy"],["AMX-104","R・ジャジャ","melee"],
+["AMX-107","バウ","transform"],["AMX-109","カプール","aquatic"],
+["RGZ-91","リ・ガズィ","transform"],["RX-93","νガンダム","psy"],
+["AMS-119","ギラ・ドーガ","general"],["MSN-03","ヤクト・ドーガ","psy"],
+["MSN-04","サザビー","elite"],["RX-0","ユニコーンガンダム","psyHeavy"],
+["RX-0-2","ユニコーンガンダム2号機・バンシィ","psyHeavy"],
+["RGZ-95","リゼル","transform"],["NZ-666","クシャトリヤ","psyHeavy"],
+["AMS-129","ギラ・ズール","general"],["MSN-06S","シナンジュ","elite"],
+["NZ-999","ネオ・ジオング","boss"],["RX-105","Ξガンダム","fast"],
+["TX-ff104","アリュゼウス","psy"]
+];
+
+const MACHINES=RAW.map(([id,name,profile])=>{
+ const p=P[profile];
+ return {
+  id,name,profile,
+  scores:Object.fromEntries(AXES.map((a,i)=>[a,p[i]])),
+  ntDependence:p[6],
+  popularityBonus:POPULAR.has(id)?0.25:0,
+  description:DESCRIPTIONS[id] || `${name}は診断上「${profile}」タイプとして評価している機体です。`,
+   image:`images/${id}.jpg`,
+   gunplaUrl:`https://www.google.com/search?q=${encodeURIComponent(name + " ガンプラ")}`
+ };
+});
+
+function calcUser(answers){
+ const scores=Object.fromEntries(AXES.map(a=>[a,0]));
+ QUESTIONS.forEach((q,i)=>{
+  const option=q.options[answers[i]];
+  if(option)Object.entries(option.scores).forEach(([a,v])=>scores[a]+=v);
+ });
+ return scores;
+}
+function calcNT(answers){
+ return [22,23,24].reduce((sum,i)=>sum+QUESTIONS[i].options[answers[i]].ntPoints,0);
+}
+function canUsePsycommu(nt,m){
+ // 低NTでは高依存機を除外。中NT以上なら候補に含める。
+ return !(m.ntDependence>=5&&nt<3);
+}
+function normalize(scores){
+ const max=Object.fromEntries(AXES.map(a=>[a,0]));
+ QUESTIONS.forEach((q,i)=>{
+  if(i>=22&&i<=24)return;
+  AXES.forEach(a=>max[a]+=Math.max(0,...q.options.map(o=>o.scores[a]||0)));
+ });
+ return Object.fromEntries(AXES.map(a=>[a,max[a]?scores[a]/max[a]*5:0]));
+}
+function compatibility(user,m){
+ return -AXES.reduce((sum,a)=>sum+Math.abs(user[a]-m.scores[a]),0);
+}
+function diagnose(answers){
+ if(answers.length!==30||answers.some(a=>!Number.isInteger(a)||a<0||a>3))
+  throw Error("30問すべてに回答してください。");
+ const scores=calcUser(answers), nt=calcNT(answers), user=normalize(scores);
+ const candidates=MACHINES.filter(m=>canUsePsycommu(nt,m)).map(m=>({
+  ...m,compatibility:compatibility(user,m)+(POPULAR.has(m.id)?m.popularityBonus:0)
+ }));
+ const best=Math.max(...candidates.map(m=>m.compatibility));
+ const tied=candidates.filter(m=>Math.abs(m.compatibility-best)<0.0001);
+ const machine=tied[Math.floor(Math.random()*tied.length)];
+ return {machine,scores,user,nt,candidateCount:candidates.length};
+}
+
+const $=id=>document.getElementById(id);
+let answers=Array(30).fill(null),current=0;
+function renderQuestion(){
+ const q=QUESTIONS[current];
+ $("counter").textContent=`Q${current+1} / ${QUESTIONS.length}`;
+ $("answered").textContent=`回答済み ${answers.filter(a=>a!==null).length} / 30`;
+ $("progress").style.width=`${(current+1)/30*100}%`;
+ $("question").textContent=q.text;
+ $("hint").textContent=current>=22&&current<=24?"この3問はNT適性の判定に使用します。":"最も自分に近い選択肢を選んでください。";
+ $("answers").replaceChildren();
+ q.options.forEach((o,i)=>{
+  const b=document.createElement("button");
+  b.className="answer"+(answers[current]===i?" selected":"");
+  b.textContent=String.fromCharCode(65+i)+"： "+o.label;
+  b.setAttribute("aria-pressed",answers[current]===i?"true":"false");
+  b.onclick=()=>{answers[current]=i;renderQuestion();};
+  $("answers").appendChild(b);
+ });
+ $("back").disabled=current===0;
+ $("next").textContent=current===29?"診断結果を見る":"次の質問 →";
+ $("next").disabled=answers[current]===null;
+}
+function showResult(){
+ try{
+  const r = diagnose(answers);
+  const m = r.machine;
+
+  $("machineName").textContent = m.name;
+  $("machineId").textContent = m.id;
+  $("description").textContent = m.description;
+
+  // MS画像の表示処理
+  const image = $("machineImage");
+  const imageNotice = $("imageNotice");
+  const extensions = ["jpg", "jpeg", "png", "webp"];
+  let imageIndex = 0;
+
+  if(image){
+   image.hidden = true;
+
+   if(imageNotice){
+    imageNotice.hidden = true;
+   }
+
+   image.onload = () => {
+    image.hidden = false;
+    if(imageNotice){
+     imageNotice.hidden = true;
+    }
+   };
+
+   image.onerror = () => {
+    imageIndex++;
+
+    if(imageIndex < extensions.length){
+     image.src = `images/${m.id}.${extensions[imageIndex]}`;
+    }else{
+     image.hidden = true;
+
+     if(imageNotice){
+      imageNotice.textContent =
+       `画像が見つかりません。imagesフォルダに「${m.id}.jpg」などの名前で保存してください。`;
+      imageNotice.hidden = false;
+     }
+    }
+   };
+
+   image.alt = `${m.name}の画像`;
+   image.src = `images/${m.id}.${extensions[0]}`;
+  }
+
+  // ガンプラ検索リンク
+  const gunplaLink = $("gunplaLink");
+  if(gunplaLink && m.gunplaUrl){
+   gunplaLink.href = m.gunplaUrl;
+   gunplaLink.hidden = false;
+  }
+
+  // 6項目の能力グラフ
+  const labels = AXES.map(a => [a, r.user[a]]);
+  $("stats").replaceChildren();
+
+  labels.forEach(([axis, value]) => {
+   const row = document.createElement("div");
+   row.className = "stat";
+
+   const label = document.createElement("span");
+   label.textContent = LABELS[axis];
+
+   const bar = document.createElement("div");
+   bar.className = "bar";
+
+   const fill = document.createElement("div");
+   fill.style.width =
+    `${Math.max(0, Math.min(100, value / 5 * 100))}%`;
+   bar.appendChild(fill);
+
+   const number = document.createElement("span");
+   number.textContent = value.toFixed(1);
+
+   row.append(label, bar, number);
+   $("stats").appendChild(row);
+  });
+
+  $("reason").textContent =
+   "6つの戦闘傾向とNT適性による候補制限を内部判定に使い、回答傾向に近い機体を選出しています。";
+
+  $("quiz").classList.add("hidden");
+  $("result").classList.remove("hidden");
+
+ }catch(e){
+  console.error(e);
+  alert("診断結果の表示中にエラーが発生しました。\n" + e.message);
+ }
+}
+
+
+ // 診断開始
+ $("start").addEventListener("click", () => {
+  current = 0;
+  $("intro").classList.add("hidden");
+  $("quiz").classList.remove("hidden");
+  renderQuestion();
+ });
+
+ // 前の質問
+ $("back").addEventListener("click", () => {
+  if (current > 0) {
+   current--;
+   renderQuestion();
+  }
+ });
+
+ // 次の質問・診断結果
+ $("next").addEventListener("click", () => {
+  if (answers[current] === null) return;
+
+  if (current < QUESTIONS.length - 1) {
+   current++;
+   renderQuestion();
+  } else {
+   showResult();
+  }
+ });
+
+ // 最初からやり直す
+ $("restart").addEventListener("click", () => {
+  answers = Array(30).fill(null);
+  current = 0;
+  $("result").classList.add("hidden");
+  $("quiz").classList.add("hidden");
+  $("intro").classList.remove("hidden");
+ });
+
+
+</script>
+</body>
+</html>
