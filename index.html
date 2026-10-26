@@ -86,7 +86,7 @@ footer{color:var(--muted);font-size:13px;margin-top:30px}
 <button id="restart" class="primary">もう一度診断する</button>
 </section>
 
-<footer>MS診断・試作版 / 機体評価と質問文は今後調整できます。</footer>
+<footer></footer>
 </main>
 
 <script>
@@ -193,10 +193,10 @@ const rawQuestions = [
     [F, G, V, D]],
 
   ["初対面の人と会ったとき、最初に感じ取るのは？",
-    ["自分と気が合いそうかどうか", "話すテンポや、その場の雰囲気", "表情や何気ない仕草", "話の内容や考え方"],
+    ["自分と相性がよさそうか", "話す速さや会話の雰囲気", "表情やちょっとした仕草", "話している内容や、相手の考え方"],
     null, "nt"],
 
-  ["人と話しているとき、気づきやすいのはどんなこと？",
+  ["人と話すとき、自然と注目するのはどれ？",
     ["相手が本当に伝えたいこと", "相手の反応や会話のテンポ", "表情や声のわずかな変化", "話の内容と、その理由"],
     null, "nt"],
 
@@ -225,23 +225,8 @@ const rawQuestions = [
     [F, G, V, D]]
 ];
 
-const NT_POINTS=[[2,1,1,0],[2,1,0,0],[2,1,0,0]];
-// 20問版：戦闘傾向を測る17問＋NT適性を測る3問
-const SELECTED_QUESTION_INDEXES=[0,1,3,6,7,8,10,11,12,13,15,16,17,18,19,20,21,22,23,24];
-let ntQuestionNo=0;
-const QUESTIONS=SELECTED_QUESTION_INDEXES.map((rawIndex,displayIndex)=>{
- const q=rawQuestions[rawIndex];
- const nt=q[3]==="nt";
- const ntIndex=nt?ntQuestionNo++:-1;
- return {
-  id:rawIndex+1,text:q[0],isNT:nt,
-  options:q[1].map((label,j)=>({
-   label,
-   scores:q[2]?Object.fromEntries(AXES.map((axis,k)=>[axis,q[2][j][k]]).filter(([,v])=>v!==0)): {},
-   ...(nt?{ntPoints:NT_POINTS[ntIndex][j]}:{})
-  }))
- };
-});
+// 20問の正式採点表。Q18は表示上のみ最後に出題。
+const QUESTIONS=[{"id":1,"text":"何かを決めるとき、最初に取る行動は？","isGroup":false,"options":[{"label":"行動して結果を見る","scores":{"melee":1,"mobility":1},"ntPoints":0},{"label":"情報を集めて決める","scores":{"shooting":1,"versatility":1},"ntPoints":0},{"label":"周囲の意見を聞く","scores":{"defense":1,"versatility":1},"ntPoints":0},{"label":"最初の印象を大切にする","scores":{"mobility":1},"ntPoints":1}]},{"id":2,"text":"初めてのことに挑戦するときは？","isGroup":false,"options":[{"label":"手順や見本を確認する","scores":{"shooting":1,"defense":1},"ntPoints":0},{"label":"試しながら覚える","scores":{"melee":1,"mobility":1},"ntPoints":0},{"label":"経験者の話を聞く","scores":{"defense":1,"versatility":1},"ntPoints":0},{"label":"全体像から方法を考える","scores":{"firepower":1,"versatility":1},"ntPoints":0}]},{"id":3,"text":"複数の作業が重なったら？","isGroup":false,"options":[{"label":"重要なものから処理する","scores":{"shooting":1,"defense":1},"ntPoints":0},{"label":"短時間で終わるものから処理する","scores":{"mobility":1},"ntPoints":0},{"label":"全体を見て並行処理する","scores":{"versatility":2},"ntPoints":0},{"label":"気になるものから着手する","scores":{"melee":1,"mobility":1},"ntPoints":0}]},{"id":4,"text":"初対面の人と話すとき、何に注目する？","isGroup":false,"options":[{"label":"相性に注目する","scores":{"melee":1},"ntPoints":1},{"label":"会話の雰囲気に注目する","scores":{"defense":1},"ntPoints":1},{"label":"表情や仕草に注目する","scores":{},"ntPoints":2},{"label":"内容や考え方に注目する","scores":{"shooting":1,"versatility":1},"ntPoints":0}]},{"id":5,"text":"友人の様子がいつもと違うときは？","isGroup":false,"options":[{"label":"すぐ声をかける","scores":{"defense":2},"ntPoints":1},{"label":"話し出すまで待つ","scores":{"defense":1},"ntPoints":0},{"label":"違いを観察して理由を考える","scores":{"shooting":1},"ntPoints":1},{"label":"普段どおり接して様子を見る","scores":{"defense":1,"versatility":1},"ntPoints":0}]},{"id":6,"text":"意見が対立したとき、どうする？","isGroup":false,"options":[{"label":"共通の目標を確認する","scores":{"firepower":1,"versatility":1},"ntPoints":0},{"label":"主張を整理して妥協点を探す","scores":{"versatility":2},"ntPoints":0},{"label":"自分の考えを率直に伝える","scores":{"melee":1,"firepower":1},"ntPoints":0},{"label":"相手の立場を理解する","scores":{"defense":1},"ntPoints":1}]},{"id":7,"text":"問題の原因がわからないときは？","isGroup":false,"options":[{"label":"一つずつ原因を確かめる","scores":{"shooting":2},"ntPoints":0},{"label":"経験から原因を推測する","scores":{"shooting":1,"mobility":1},"ntPoints":0},{"label":"別の人の視点を取り入れる","scores":{"versatility":2},"ntPoints":0},{"label":"影響が広がらないよう対処する","scores":{"defense":2},"ntPoints":0}]},{"id":8,"text":"同じ方法で何度も失敗したら？","isGroup":false,"options":[{"label":"改善を重ねる","scores":{"shooting":1,"defense":1},"ntPoints":0},{"label":"別の方法を試す","scores":{"mobility":2},"ntPoints":0},{"label":"得意な人に助言を求める","scores":{"defense":1,"versatility":1},"ntPoints":0},{"label":"距離を置いて考え直す","scores":{"shooting":1},"ntPoints":1}]},{"id":9,"text":"予想外の出来事が起きたら？","isGroup":false,"options":[{"label":"事前情報をもとに対応する","scores":{"shooting":1,"defense":1},"ntPoints":0},{"label":"現地で判断する","scores":{"mobility":2},"ntPoints":0},{"label":"周囲に尋ねる","scores":{"defense":1,"versatility":1},"ntPoints":0},{"label":"直感で方向を選ぶ","scores":{"mobility":1},"ntPoints":1}]},{"id":10,"text":"急な変更を求められたら？","isGroup":false,"options":[{"label":"手順を守って対応する","scores":{"defense":2},"ntPoints":0},{"label":"すぐ方針を切り替える","scores":{"mobility":2},"ntPoints":0},{"label":"周囲と情報を共有する","scores":{"versatility":2},"ntPoints":0},{"label":"違和感を手がかりに判断する","scores":{"mobility":1},"ntPoints":2}]},{"id":11,"text":"初めて訪れた場所で、最初に気づくのは？","isGroup":false,"options":[{"label":"人々の雰囲気を感じ取る","scores":{"defense":1},"ntPoints":2},{"label":"造りや配置に注目する","scores":{"shooting":1,"versatility":1},"ntPoints":0},{"label":"小さな変化に気づく","scores":{"shooting":1},"ntPoints":2},{"label":"今後の展開を想像する","scores":{"firepower":1},"ntPoints":1}]},{"id":12,"text":"人が多い場所では、何を意識する？","isGroup":false,"options":[{"label":"全体の雰囲気を感じ取る","scores":{"versatility":1},"ntPoints":2},{"label":"特定の人との会話に集中する","scores":{"melee":1,"defense":1},"ntPoints":0},{"label":"周囲の動きや変化を見る","scores":{"mobility":1},"ntPoints":1},{"label":"自分の目的や考えに集中する","scores":{"shooting":1,"firepower":1},"ntPoints":0}]},{"id":13,"text":"情報が少ない状況で判断するなら？","isGroup":false,"options":[{"label":"情報から筋道を立てる","scores":{"shooting":2},"ntPoints":0},{"label":"最初に浮かんだ考えを頼る","scores":{"mobility":1},"ntPoints":2},{"label":"詳しい人の意見を求める","scores":{"defense":1,"versatility":1},"ntPoints":0},{"label":"変更の余地を残す","scores":{"mobility":1,"versatility":1},"ntPoints":0}]},{"id":14,"text":"自分が役割を選ぶなら、何を重視する？","isGroup":false,"options":[{"label":"戦況を変える力を重視する","scores":{"firepower":2},"ntPoints":0},{"label":"仲間を支える力を重視する","scores":{"defense":2},"ntPoints":0},{"label":"安定した役割遂行を重視する","scores":{"versatility":2},"ntPoints":0},{"label":"独自の役割を重視する","scores":{"firepower":1},"ntPoints":1}]},{"id":15,"text":"理想のMSの戦い方は？","isGroup":false,"options":[{"label":"機動力で敵を翻弄する","scores":{"mobility":2},"ntPoints":0},{"label":"強力な武装で防御を突破する","scores":{"firepower":2},"ntPoints":0},{"label":"武装を使い分けて対応する","scores":{"versatility":2},"ntPoints":0},{"label":"接近戦で確実に仕留める","scores":{"melee":2},"ntPoints":0}]},{"id":16,"text":"MSを選ぶときに最も重視する性能は？","isGroup":false,"options":[{"label":"一対一で相手を圧倒する","scores":{"melee":2},"ntPoints":0},{"label":"遠距離から有効な攻撃を行う","scores":{"shooting":2},"ntPoints":0},{"label":"攻撃を受けても戦い続ける","scores":{"defense":2},"ntPoints":0},{"label":"幅広い役割をこなす","scores":{"versatility":2},"ntPoints":0}]},{"id":17,"text":"自分のMSに最も期待する役割は？","isGroup":false,"options":[{"label":"戦況を一変させる","scores":{"firepower":2},"ntPoints":0},{"label":"部隊全体を支える","scores":{"defense":1,"versatility":1},"ntPoints":0},{"label":"どんな任務も安定してこなす","scores":{"versatility":2},"ntPoints":0},{"label":"自分だけの役割を持つ","scores":{"firepower":1},"ntPoints":1}]},{"id":18,"text":"所属する組織で、何を最も大切にしたい？","isGroup":true,"options":[{"label":"目標・理念を重視する","scores":{},"ntPoints":0,"group":"A"},{"label":"規律・秩序を重視する","scores":{},"ntPoints":0,"group":"B"},{"label":"成果・能力の評価を重視する","scores":{},"ntPoints":0,"group":"C"},{"label":"自由意思・独立性を重視する","scores":{},"ntPoints":0,"group":"D"}]},{"id":19,"text":"大きな犠牲を伴う計画に直面したら？","isGroup":false,"options":[{"label":"大きな犠牲には反対する","scores":{"defense":1},"ntPoints":0},{"label":"理念を理解し方法を見直す","scores":{"versatility":1},"ntPoints":0},{"label":"現状を変えるため厳しい決断をする","scores":{"firepower":1},"ntPoints":0},{"label":"自分で判断する","scores":{"mobility":1},"ntPoints":0}]},{"id":20,"text":"危険を伴う任務で、最後に優先するのは？","isGroup":false,"options":[{"label":"任務を優先する","scores":{"firepower":1},"ntPoints":0},{"label":"仲間を守る","scores":{"defense":1},"ntPoints":0},{"label":"成功の見込みを見極める","scores":{"shooting":1},"ntPoints":0},{"label":"自分たちで道を決める","scores":{"mobility":1},"ntPoints":0}]}];
 
 // 機体プロフィール：[近接,射撃,機動,防御,火力,汎用,サイコミュ依存度]
 const P={
@@ -405,6 +390,16 @@ MACHINES.forEach(m => {
   m.ntDependence = INDIVIDUAL_NT[m.id] ?? m.ntDependence;
 });
 
+// 質問別採点表・機体能力値表を反映（64機、A-Dグループは確定版）
+const WORKBOOK_MACHINES=[{"scores": [4, 4, 4, 4, 4, 5], "nt": 0, "group": "D"}, {"scores": [0, 5, 1, 3, 4, 2], "nt": 0, "group": "D"}, {"scores": [2, 5, 2, 4, 4, 3], "nt": 0, "group": "D"}, {"scores": [0, 3, 1, 0, 2, 1], "nt": 0, "group": "B"}, {"scores": [3, 3, 3, 3, 2, 4], "nt": 0, "group": "B"}, {"scores": [3, 3, 3, 3, 2, 4], "nt": 0, "group": "A"}, {"scores": [5, 2, 3, 3, 3, 2], "nt": 0, "group": "A"}, {"scores": [3, 3, 5, 3, 3, 3], "nt": 0, "group": "A"}, {"scores": [4, 4, 4, 4, 4, 4], "nt": 0, "group": "A"}, {"scores": [5, 2, 4, 2, 3, 2], "nt": 0, "group": "A"}, {"scores": [3, 2, 3, 3, 2, 2], "nt": 0, "group": "A"}, {"scores": [4, 3, 4, 4, 3, 2], "nt": 0, "group": "A"}, {"scores": [1, 4, 0, 5, 4, 1], "nt": 0, "group": "A"}, {"scores": [2, 5, 4, 3, 5, 2], "nt": 3, "group": "A"}, {"scores": [1, 4, 1, 5, 5, 1], "nt": 0, "group": "A"}, {"scores": [3, 4, 4, 3, 3, 1], "nt": 0, "group": "A"}, {"scores": [1, 5, 4, 2, 4, 2], "nt": 6, "group": "A"}, {"scores": [3, 4, 3, 4, 3, 4], "nt": 0, "group": "A"}, {"scores": [4, 4, 5, 2, 3, 4], "nt": 0, "group": "A"}, {"scores": [4, 3, 3, 3, 3, 4], "nt": 0, "group": "A"}, {"scores": [2, 3, 4, 2, 2, 4], "nt": 0, "group": "A"}, {"scores": [4, 4, 5, 3, 4, 5], "nt": 1, "group": "A"}, {"scores": [3, 4, 4, 3, 3, 4], "nt": 0, "group": "B"}, {"scores": [3, 4, 3, 3, 3, 3], "nt": 0, "group": "B"}, {"scores": [4, 3, 4, 3, 3, 3], "nt": 0, "group": "B"}, {"scores": [3, 4, 4, 3, 4, 3], "nt": 0, "group": "B"}, {"scores": [4, 3, 5, 2, 3, 3], "nt": 0, "group": "B"}, {"scores": [3, 3, 4, 3, 3, 3], "nt": 0, "group": "B"}, {"scores": [4, 3, 5, 3, 3, 2], "nt": 0, "group": "B"}, {"scores": [3, 4, 5, 3, 4, 2], "nt": 0, "group": "B"}, {"scores": [3, 3, 4, 4, 3, 3], "nt": 0, "group": "B"}, {"scores": [3, 4, 3, 4, 4, 2], "nt": 3, "group": "B"}, {"scores": [2, 4, 1, 5, 5, 1], "nt": 4, "group": "C"}, {"scores": [3, 4, 5, 3, 4, 3], "nt": 0, "group": "C"}, {"scores": [2, 5, 2, 4, 5, 2], "nt": 0, "group": "C"}, {"scores": [5, 3, 4, 5, 3, 3], "nt": 2, "group": "C"}, {"scores": [2, 3, 3, 2, 2, 3], "nt": 0, "group": "A"}, {"scores": [3, 5, 5, 3, 4, 3], "nt": 5, "group": "A"}, {"scores": [3, 4, 2, 4, 5, 3], "nt": 1, "group": "A"}, {"scores": [2, 4, 4, 2, 4, 2], "nt": 0, "group": "A"}, {"scores": [3, 3, 4, 3, 3, 3], "nt": 0, "group": "A"}, {"scores": [5, 2, 3, 4, 3, 2], "nt": 0, "group": "A"}, {"scores": [2, 5, 3, 3, 5, 3], "nt": 3, "group": "A"}, {"scores": [2, 5, 2, 4, 5, 2], "nt": 5, "group": "A"}, {"scores": [5, 2, 3, 3, 3, 2], "nt": 0, "group": "A"}, {"scores": [1, 4, 3, 2, 5, 2], "nt": 0, "group": "A"}, {"scores": [3, 4, 3, 3, 4, 3], "nt": 3, "group": "A"}, {"scores": [5, 3, 4, 3, 3, 3], "nt": 0, "group": "A"}, {"scores": [3, 4, 5, 3, 4, 4], "nt": 0, "group": "A"}, {"scores": [4, 2, 3, 4, 2, 2], "nt": 0, "group": "A"}, {"scores": [3, 4, 4, 3, 3, 3], "nt": 0, "group": "D"}, {"scores": [4, 5, 4, 4, 4, 5], "nt": 4, "group": "D"}, {"scores": [3, 3, 3, 3, 3, 4], "nt": 0, "group": "A"}, {"scores": [3, 4, 4, 3, 4, 3], "nt": 4, "group": "A"}, {"scores": [5, 5, 4, 4, 5, 4], "nt": 4, "group": "A"}, {"scores": [4, 4, 4, 4, 5, 3], "nt": 5, "group": "D"}, {"scores": [5, 4, 4, 4, 5, 3], "nt": 5, "group": "C"}, {"scores": [3, 3, 4, 3, 3, 4], "nt": 0, "group": "B"}, {"scores": [3, 5, 3, 5, 5, 3], "nt": 5, "group": "C"}, {"scores": [3, 3, 3, 3, 3, 4], "nt": 0, "group": "C"}, {"scores": [5, 4, 5, 4, 4, 4], "nt": 1, "group": "C"}, {"scores": [1, 5, 1, 5, 5, 1], "nt": 6, "group": "C"}, {"scores": [4, 4, 5, 4, 4, 4], "nt": 0, "group": "D"}, {"scores": [3, 4, 4, 3, 4, 3], "nt": 2, "group": "B"}];
+if(MACHINES.length!==WORKBOOK_MACHINES.length) throw Error("機体数が一致しません");
+MACHINES.forEach((m,i)=>{
+ const d=WORKBOOK_MACHINES[i];
+ m.scores=Object.fromEntries(AXES.map((axis,k)=>[axis,d.scores[k]]));
+ m.ntDependence=d.nt;
+ m.group=d.group;
+});
+
 function calcUser(answers){
  const scores=Object.fromEntries(AXES.map(a=>[a,0]));
  QUESTIONS.forEach((q,i)=>{
@@ -414,52 +409,29 @@ function calcUser(answers){
  return scores;
 }
 function calcNT(answers){
- return QUESTIONS.reduce((sum,q,i)=>sum+(q.isNT? q.options[answers[i]].ntPoints:0),0);
+ return QUESTIONS.reduce((sum,q,i)=>sum+(q.options[answers[i]]?.ntPoints||0),0);
 }
 function canUsePsycommu(nt,m){
- // NT適性が一定以上ない場合、高依存機体は候補から外す。
  return !(m.ntDependence>=5&&nt<3);
 }
 function normalize(scores){
  const max=Object.fromEntries(AXES.map(a=>[a,0]));
- QUESTIONS.forEach(q=>{
-  if(q.isNT)return;
-  AXES.forEach(a=>max[a]+=Math.max(0,...q.options.map(o=>o.scores[a]||0)));
- });
- return Object.fromEntries(AXES.map(a=>[a,max[a]?Math.min(5,scores[a]/max[a]*10):0]));
+ QUESTIONS.forEach(q=>AXES.forEach(a=>max[a]+=Math.max(0,...q.options.map(o=>o.scores[a]||0))));
+ return Object.fromEntries(AXES.map(a=>[a,max[a]?Math.min(5,scores[a]/max[a]*5):0]));
 }
 function compatibility(user,m){
  return -AXES.reduce((sum,a)=>sum+Math.abs(user[a]-m.scores[a]),0);
 }
-const USAGE_KEY="ms-diagnosis-machine-usage-v2";
-function getUsageCounts(){
- try{return JSON.parse(localStorage.getItem(USAGE_KEY)||"{}");}catch(e){return {};}
-}
-function saveUsageCount(id){
- try{const counts=getUsageCounts();counts[id]=(counts[id]||0)+1;localStorage.setItem(USAGE_KEY,JSON.stringify(counts));}catch(e){}
-}
 function diagnose(answers){
  if(answers.length!==QUESTIONS.length||answers.some(a=>!Number.isInteger(a)||a<0||a>3))
-  throw Error("20問すべてに回答してください。");
- const scores=calcUser(answers), nt=calcNT(answers), user=normalize(scores);
- const candidates=MACHINES.filter(m=>canUsePsycommu(nt,m)).map(m=>({
-  ...m,compatibility:compatibility(user,m)
- }));
- const best=Math.max(...candidates.map(m=>m.compatibility));
- // 相性上位の候補を残し、過去に出すぎた機体を抑えて出現頻度をならす。
- const near=candidates.filter(m=>m.compatibility>=best-10.5);
- const counts=getUsageCounts();
- const weighted=near.map(m=>{
-  const count=counts[m.id]||0;
-  const compatibilityWeight=Math.exp((m.compatibility-best)*0.15);
-  const balanceWeight=1/Math.pow(count+1,1.8);
-  return {...m,weight:compatibilityWeight*balanceWeight};
- });
- const total=weighted.reduce((sum,m)=>sum+m.weight,0);
- let pick=Math.random()*total, machine=weighted[weighted.length-1];
- for(const m of weighted){pick-=m.weight;if(pick<=0){machine=m;break;}}
- saveUsageCount(machine.id);
- return {machine,scores,user,nt,candidateCount:candidates.length,nearCount:near.length};
+  throw Error(`${QUESTIONS.length}問すべてに回答してください。`);
+ const scores=calcUser(answers),nt=calcNT(answers),user=normalize(scores);
+ const groupQuestionIndex=17;
+ const group=QUESTIONS[groupQuestionIndex].options[answers[groupQuestionIndex]].group;
+ const candidates=MACHINES.filter(m=>m.group===group&&canUsePsycommu(nt,m));
+ if(!candidates.length)throw Error("候補機体がありません");
+ const machine=[...candidates].sort((a,b)=>(compatibility(user,b)+(nt>=6?b.ntDependence*0.35:0))-(compatibility(user,a)+(nt>=6?a.ntDependence*0.35:0))||a.id.localeCompare(b.id))[0];
+ return {machine,scores,user,nt,group,candidateCount:candidates.length};
 }
 
 const $=id=>document.getElementById(id);
@@ -546,14 +518,14 @@ const labels=AXES.map(a=>[a,r.user[a]]);
    const number=document.createElement("span");number.textContent=value.toFixed(1);
    row.append(label,bar,number);$("stats").appendChild(row);
   });
-   $("reason").textContent=`6つの戦闘傾向とNT適性を判定。候補${r.candidateCount}機のうち相性が近い${r.nearCount}機を対象に、過去の出現回数も考慮して抽選しました。`;
+   $("reason").textContent=`6つの戦闘傾向を判定。グループ${r.group}の候補${r.candidateCount}機から、能力値との相性が最も高い1機を選出しました。`;
   $("quiz").classList.add("hidden");$("result").classList.remove("hidden");
  }catch(e){alert(e.message);}
 }
 $("start").onclick = () => {
   current = 0;
   answers = Array(QUESTIONS.length).fill(null);
-  shuffleQuestions();
+  questionOrder=[...Array.from({length:QUESTIONS.length},(_,i)=>i).filter(i=>i!==17),17];
 
   $("intro").classList.add("hidden");
   $("result").classList.add("hidden");
