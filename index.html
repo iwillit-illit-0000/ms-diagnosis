@@ -86,7 +86,7 @@ footer{color:var(--muted);font-size:13px;margin-top:30px}
 <button id="restart" class="primary">もう一度診断する</button>
 </section>
 
-<footer></footer>
+<footer>MS診断・試作版 / 機体評価と質問文は今後調整できます。</footer>
 </main>
 
 <script>
@@ -356,7 +356,7 @@ const MACHINES=RAW.map(([id,name,profile])=>{
  };
 });
 
-// 各機体を個別評価：[近接,射撃,機動,防御・継戦,火力・突破,汎用性] / 各0〜5点
+// 各機体を個別評価：[近接,射撃,機動,防御・継戦,火力・突破,汎用性] / 各0〜10点
 // 公式性能値ではなく、診断用の相対評価。プロフィール共通値ではなく機体ごとの値を使用する。
 const INDIVIDUAL_SCORES = {
 "RX-78-2":[4,4,4,4,4,5], "RX-75-4":[1,5,1,3,4,1], "RX-77-2":[2,5,2,4,4,3], "RB-79":[1,3,2,1,2,2],
@@ -393,9 +393,24 @@ MACHINES.forEach(m => {
 // 質問別採点表・機体能力値表を反映（64機、A-Dグループは確定版）
 const WORKBOOK_MACHINES=[{"scores": [4, 4, 4, 4, 4, 5], "nt": 0, "group": "D"}, {"scores": [0, 5, 1, 3, 4, 2], "nt": 0, "group": "D"}, {"scores": [2, 5, 2, 4, 4, 3], "nt": 0, "group": "D"}, {"scores": [0, 3, 1, 0, 2, 1], "nt": 0, "group": "B"}, {"scores": [3, 3, 3, 3, 2, 4], "nt": 0, "group": "B"}, {"scores": [3, 3, 3, 3, 2, 4], "nt": 0, "group": "A"}, {"scores": [5, 2, 3, 3, 3, 2], "nt": 0, "group": "A"}, {"scores": [3, 3, 5, 3, 3, 3], "nt": 0, "group": "A"}, {"scores": [4, 4, 4, 4, 4, 4], "nt": 0, "group": "A"}, {"scores": [5, 2, 4, 2, 3, 2], "nt": 0, "group": "A"}, {"scores": [3, 2, 3, 3, 2, 2], "nt": 0, "group": "A"}, {"scores": [4, 3, 4, 4, 3, 2], "nt": 0, "group": "A"}, {"scores": [1, 4, 0, 5, 4, 1], "nt": 0, "group": "A"}, {"scores": [2, 5, 4, 3, 5, 2], "nt": 3, "group": "A"}, {"scores": [1, 4, 1, 5, 5, 1], "nt": 0, "group": "A"}, {"scores": [3, 4, 4, 3, 3, 1], "nt": 0, "group": "A"}, {"scores": [1, 5, 4, 2, 4, 2], "nt": 6, "group": "A"}, {"scores": [3, 4, 3, 4, 3, 4], "nt": 0, "group": "A"}, {"scores": [4, 4, 5, 2, 3, 4], "nt": 0, "group": "A"}, {"scores": [4, 3, 3, 3, 3, 4], "nt": 0, "group": "A"}, {"scores": [2, 3, 4, 2, 2, 4], "nt": 0, "group": "A"}, {"scores": [4, 4, 5, 3, 4, 5], "nt": 1, "group": "A"}, {"scores": [3, 4, 4, 3, 3, 4], "nt": 0, "group": "B"}, {"scores": [3, 4, 3, 3, 3, 3], "nt": 0, "group": "B"}, {"scores": [4, 3, 4, 3, 3, 3], "nt": 0, "group": "B"}, {"scores": [3, 4, 4, 3, 4, 3], "nt": 0, "group": "B"}, {"scores": [4, 3, 5, 2, 3, 3], "nt": 0, "group": "B"}, {"scores": [3, 3, 4, 3, 3, 3], "nt": 0, "group": "B"}, {"scores": [4, 3, 5, 3, 3, 2], "nt": 0, "group": "B"}, {"scores": [3, 4, 5, 3, 4, 2], "nt": 0, "group": "B"}, {"scores": [3, 3, 4, 4, 3, 3], "nt": 0, "group": "B"}, {"scores": [3, 4, 3, 4, 4, 2], "nt": 3, "group": "B"}, {"scores": [2, 4, 1, 5, 5, 1], "nt": 4, "group": "C"}, {"scores": [3, 4, 5, 3, 4, 3], "nt": 0, "group": "C"}, {"scores": [2, 5, 2, 4, 5, 2], "nt": 0, "group": "C"}, {"scores": [5, 3, 4, 5, 3, 3], "nt": 2, "group": "C"}, {"scores": [2, 3, 3, 2, 2, 3], "nt": 0, "group": "A"}, {"scores": [3, 5, 5, 3, 4, 3], "nt": 5, "group": "A"}, {"scores": [3, 4, 2, 4, 5, 3], "nt": 1, "group": "A"}, {"scores": [2, 4, 4, 2, 4, 2], "nt": 0, "group": "A"}, {"scores": [3, 3, 4, 3, 3, 3], "nt": 0, "group": "A"}, {"scores": [5, 2, 3, 4, 3, 2], "nt": 0, "group": "A"}, {"scores": [2, 5, 3, 3, 5, 3], "nt": 3, "group": "A"}, {"scores": [2, 5, 2, 4, 5, 2], "nt": 5, "group": "A"}, {"scores": [5, 2, 3, 3, 3, 2], "nt": 0, "group": "A"}, {"scores": [1, 4, 3, 2, 5, 2], "nt": 0, "group": "A"}, {"scores": [3, 4, 3, 3, 4, 3], "nt": 3, "group": "A"}, {"scores": [5, 3, 4, 3, 3, 3], "nt": 0, "group": "A"}, {"scores": [3, 4, 5, 3, 4, 4], "nt": 0, "group": "A"}, {"scores": [4, 2, 3, 4, 2, 2], "nt": 0, "group": "A"}, {"scores": [3, 4, 4, 3, 3, 3], "nt": 0, "group": "D"}, {"scores": [4, 5, 4, 4, 4, 5], "nt": 4, "group": "D"}, {"scores": [3, 3, 3, 3, 3, 4], "nt": 0, "group": "A"}, {"scores": [3, 4, 4, 3, 4, 3], "nt": 4, "group": "A"}, {"scores": [5, 5, 4, 4, 5, 4], "nt": 4, "group": "A"}, {"scores": [4, 4, 4, 4, 5, 3], "nt": 5, "group": "D"}, {"scores": [5, 4, 4, 4, 5, 3], "nt": 5, "group": "C"}, {"scores": [3, 3, 4, 3, 3, 4], "nt": 0, "group": "B"}, {"scores": [3, 5, 3, 5, 5, 3], "nt": 5, "group": "C"}, {"scores": [3, 3, 3, 3, 3, 4], "nt": 0, "group": "C"}, {"scores": [5, 4, 5, 4, 4, 4], "nt": 1, "group": "C"}, {"scores": [1, 5, 1, 5, 5, 1], "nt": 6, "group": "C"}, {"scores": [4, 4, 5, 4, 4, 4], "nt": 0, "group": "D"}, {"scores": [3, 4, 4, 3, 4, 3], "nt": 2, "group": "B"}];
 if(MACHINES.length!==WORKBOOK_MACHINES.length) throw Error("機体数が一致しません");
+// 旧0〜10評価を新0〜10評価に変換。低能力機の特徴も残す。
+const SCORE_SCALE=[0,1.5,3.3,5.2,7.6,9.6];
+// 同じ旧評価でも機体固有の長所・弱点を区別する（順序：近接/射撃/機動/防御/火力/汎用）
+const MACHINE_TUNING={
+ 'RX-78-2':[0,0,0,0,0,0.3], 'RX-75':[-0.2,0,0,0,0,0],
+ 'MS-07B':[0.4,-0.4,0.1,0,0,-0.2],
+ 'MSM-04':[0,-0.3,0.1,0,0,-0.2],
+ 'MSM-10':[-0.3,0,-0.3,0.4,0.2,-0.3],
+ 'MA-08':[-0.2,0,-0.3,0.5,0.5,-0.3],
+ 'AMX-102':[-0.4,0.1,0,0,0.5,0],
+ 'MSZ-006':[0,0,0.3,0,0,0.3],
+ 'MSN-04':[0.2,0,0,0,0.2,0],
+ 'RX-93':[0,0.1,0,0,0,0.2]
+};
 MACHINES.forEach((m,i)=>{
  const d=WORKBOOK_MACHINES[i];
- m.scores=Object.fromEntries(AXES.map((axis,k)=>[axis,d.scores[k]]));
+ const tuning=MACHINE_TUNING[m.id]||[0,0,0,0,0,0];
+ m.scores=Object.fromEntries(AXES.map((axis,k)=>[axis,Math.max(0,Math.min(10,SCORE_SCALE[d.scores[k]]+tuning[k]))]));
  m.ntDependence=d.nt;
  m.group=d.group;
 });
@@ -414,23 +429,81 @@ function calcNT(answers){
 function canUsePsycommu(nt,m){
  return !(m.ntDependence>=5&&nt<3);
 }
+// 回答を無作為に選んだ場合の期待値と標準偏差を軸ごとに算出する。
+// 従来の「全設問で同じ軸を最大化する」方式は、6軸すべてを低く見積もるため使用しない。
+const AXIS_BASELINES=Object.fromEntries(AXES.map(axis=>{
+ let mean=0,variance=0;
+ for(const q of QUESTIONS){
+  if(q.isGroup)continue;
+  const values=q.options.map(o=>o.scores[axis]||0);
+  const avg=values.reduce((s,v)=>s+v,0)/values.length;
+  mean+=avg;
+  variance+=values.reduce((s,v)=>s+(v-avg)**2,0)/values.length;
+ }
+ return [axis,{mean,sd:Math.sqrt(variance)}];
+}));
 function normalize(scores){
- const max=Object.fromEntries(AXES.map(a=>[a,0]));
- QUESTIONS.forEach(q=>AXES.forEach(a=>max[a]+=Math.max(0,...q.options.map(o=>o.scores[a]||0))));
- return Object.fromEntries(AXES.map(a=>[a,max[a]?Math.min(5,scores[a]/max[a]*5):0]));
+ // 回答の期待値を5点、平均との差1標準偏差を2.1点として0〜10に変換。
+ // 軸ごとに質問数が違っても同じ基準で比較できる。
+ return Object.fromEntries(AXES.map(axis=>{
+  const {mean,sd}=AXIS_BASELINES[axis];
+  const value=5+2.1*(scores[axis]-mean)/(sd||1);
+  return [axis,Math.max(0,Math.min(10,value))];
+ }));
 }
 function compatibility(user,m){
- return -AXES.reduce((sum,a)=>sum+Math.abs(user[a]-m.scores[a]),0);
+ // 全体水準だけでなく突出した強み・弱みの形も重視。
+ const uMean=AXES.reduce((s,a)=>s+user[a],0)/6;
+ const mMean=AXES.reduce((s,a)=>s+m.scores[a],0)/6;
+ const absolute=AXES.reduce((s,a)=>s+Math.abs(user[a]-m.scores[a]),0);
+ const shape=AXES.reduce((s,a)=>s+Math.abs((user[a]-uMean)-(m.scores[a]-mMean)),0);
+ return -(0.60*absolute+0.40*shape);
+}
+// 各MSが得意とする回答パターンを、能力特性から自動生成する。
+// 単なる6軸の合計だけでなく、Q1〜Q20の個別回答にも加点する。
+function machinePattern(m,index){
+ const favored=[];
+ const average=AXES.reduce((t,a)=>t+m.scores[a],0)/6;
+ const ntWeight=m.ntDependence>=3?0.55:0;
+ for(let qi=0;qi<QUESTIONS.length;qi++){
+  const q=QUESTIONS[qi];if(q.isGroup)continue;
+  const options=q.options.map((o,oi)=>{
+   let fit=AXES.reduce((v,a)=>v+(o.scores[a]||0)*(m.scores[a]-average),0);
+   fit+=ntWeight*(o.ntPoints||0);
+   // 同じ性能のMSも回答の細部で区別できるよう、少量の個体差を設定。
+   const code=Array.from(m.id).reduce((v,c)=>v*31+c.charCodeAt(0),17)>>>0;
+   const jitter=((Math.imul(code^(qi*2654435761),1103515245)>>>0) % 997)/997;
+   return {oi,fit:fit+0.85*jitter};
+  });
+  options.sort((a,b)=>b.fit-a.fit||a.oi-b.oi);
+  favored.push({q:qi,choice:options[0].oi,weight:Math.max(0.55,Math.min(1.5,(options[0].fit-options[1].fit)*0.3+0.55))});
+ }
+ // 戦闘希望Q15〜17を必ず含め、行動傾向からも固有の5問を採用。
+ const chosen=favored.filter(x=>[14,15,16].includes(x.q));
+ const other=favored.filter(x=>x.q<14||x.q>=18);
+ other.sort((a,b)=>b.weight-a.weight||((a.q+index*7)%19)-((b.q+index*7)%19));
+ return [...chosen,...other.slice(0,7)];
+}
+// 機体ごとの出現機会を補正。無作為回答で出現しにくい機体を過度に不利にしない。
+// 補正は回答に関係なく固定で、同じ回答なら同じ結果となる。
+const MACHINE_BALANCE_BONUSES=[0.223,2.885,-0.31,3.625,-2.835,-3.05,3.456,-0.708,5.702,-0.017,-0.073,1.011,3.119,2.091,3.272,0.469,1.122,0.18,1.42,-0.779,-1.313,4.152,1.959,-0.915,-0.027,2.71,0.942,0.507,1.043,2.32,-1.588,-1.855,2.619,-0.976,1.443,-0.844,-0.017,1.846,-0.798,1.252,-0.645,0.087,-0.054,-0.604,3.5359999999999996,1.533,-2.014,0.344,3.31,-2.004,-2.066,1.563,-2.977,0.606,5.116,-0.77,0.654,0.004,1.301,-4.156,3.155,5.259,1.639,2.017];
+MACHINES.forEach((m,i)=>{m.pattern=machinePattern(m,i);m.balanceBonus=MACHINE_BALANCE_BONUSES[i]});
+function scoreCandidate(answers,user,nt,m){
+ const ntAffinity=Math.min(3,Math.max(0,nt-2)*0.09*m.ntDependence);
+ const patternPoints=m.pattern.reduce((sum,p)=>sum+(answers[p.q]===p.choice?p.weight:0),0);
+ // 同系統の近接機を行動パターンで分離する。
+ const specialist=(m.name==='グフ'&&answers[6]===1&&answers[9]===1?3.0:0)
+  +(m.name==='ガルスJ'&&answers[6]===0&&answers[9]===0?3.0:0);
+ return compatibility(user,m)+ntAffinity+patternPoints*1.15+specialist+m.balanceBonus+(m.popularityBonus||0)*0.7;
 }
 function diagnose(answers){
  if(answers.length!==QUESTIONS.length||answers.some(a=>!Number.isInteger(a)||a<0||a>3))
   throw Error(`${QUESTIONS.length}問すべてに回答してください。`);
  const scores=calcUser(answers),nt=calcNT(answers),user=normalize(scores);
- const groupQuestionIndex=17;
- const group=QUESTIONS[groupQuestionIndex].options[answers[groupQuestionIndex]].group;
+ const group=QUESTIONS[17].options[answers[17]].group;
  const candidates=MACHINES.filter(m=>m.group===group&&canUsePsycommu(nt,m));
  if(!candidates.length)throw Error("候補機体がありません");
- const machine=[...candidates].sort((a,b)=>(compatibility(user,b)+(nt>=6?b.ntDependence*0.35:0))-(compatibility(user,a)+(nt>=6?a.ntDependence*0.35:0))||a.id.localeCompare(b.id))[0];
+ const machine=[...candidates].sort((a,b)=>scoreCandidate(answers,user,nt,b)-scoreCandidate(answers,user,nt,a)||a.id.localeCompare(b.id))[0];
  return {machine,scores,user,nt,group,candidateCount:candidates.length};
 }
 
@@ -514,11 +587,11 @@ const labels=AXES.map(a=>[a,r.user[a]]);
    const row=document.createElement("div");row.className="stat";
    const label=document.createElement("span");label.textContent=LABELS[axis];
    const bar=document.createElement("div");bar.className="bar";
-   const fill=document.createElement("div");fill.style.width=`${Math.max(0,Math.min(100,value/5*100))}%`;bar.appendChild(fill);
+   const fill=document.createElement("div");fill.style.width=`${Math.max(0,Math.min(100,value/10*100))}%`;bar.appendChild(fill);
    const number=document.createElement("span");number.textContent=value.toFixed(1);
    row.append(label,bar,number);$("stats").appendChild(row);
   });
-   $("reason").textContent=`6つの戦闘傾向を判定。グループ${r.group}の候補${r.candidateCount}機から、能力値との相性が最も高い1機を選出しました。`;
+   $("reason").textContent=`6つの戦闘傾向を判定。グループ${r.group}の候補${r.candidateCount}機から、能力値と回答パターンの総合相性が最も高い1機を選出しました。`;
   $("quiz").classList.add("hidden");$("result").classList.remove("hidden");
  }catch(e){alert(e.message);}
 }
