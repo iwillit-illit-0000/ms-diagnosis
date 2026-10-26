@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ガンダムMS診断</title>
+<title>機動戦士ガンダム宇宙世紀　MS診断</title>
 <style>
 :root{color-scheme:dark;--bg:#101820;--panel:#1b2935;--accent:#67d7ff;--text:#edf5fa;--muted:#aabac6}
 *{box-sizing:border-box}
@@ -41,7 +41,7 @@ footer{color:var(--muted);font-size:13px;margin-top:30px}
 <main>
 <header>
 <p class="sub">MOBILE SUIT PERSONALITY ANALYSIS</p>
-<h1>ガンダム MS診断</h1>
+<h1>機動戦士ガンダム宇宙世紀　MS診断</h1>
 <p>20問の回答から、あなたの傾向に合うモビルスーツを1機診断します。</p>
 </header>
 
@@ -82,11 +82,11 @@ footer{color:var(--muted);font-size:13px;margin-top:30px}
 <p><a id="gunplaLink" class="gunpla-link" href="#" target="_blank" rel="noopener noreferrer">このMSのガンプラを探す ↗</a></p>
 <h3>あなたの戦闘傾向</h3>
 <div id="stats"></div>
-<p id="reason" class="muted"></p>
+
 <button id="restart" class="primary">もう一度診断する</button>
 </section>
 
-<footer>MS診断・試作版 / 機体評価と質問文は今後調整できます。</footer>
+<footer>機動戦士ガンダム宇宙世紀　MS診断</footer>
 </main>
 
 <script>
@@ -94,7 +94,7 @@ footer{color:var(--muted);font-size:13px;margin-top:30px}
 
 const AXES=["melee","shooting","mobility","defense","firepower","versatility"];
 const LABELS={melee:"近接",shooting:"射撃",mobility:"機動",defense:"防御・継戦",firepower:"火力・突破",versatility:"汎用性"};
-const POPULAR=new Set(["RX-78-2","MS-06","MSN-02","MSZ-006","RX-93","MSN-04","MSZ-010","RX-0","RX-0-2","RX-105"]);
+
 
 // 各回答の加点。形式は [近接,射撃,機動,防御,火力,汎用]
 const M=[2,0,0,0,0,0],S=[0,2,0,0,0,0],V=[0,0,0,0,0,2],
@@ -103,6 +103,7 @@ const M=[2,0,0,0,0,0],S=[0,2,0,0,0,0],V=[0,0,0,0,0,2],
       MD=[1,0,0,0,1,0],VD=[0,0,0,1,0,1],
       FV=[0,0,0,0,1,1],MS=[1,1,0,0,0,0],GV=[0,0,1,0,0,1];
 
+// 旧30問データ（診断には未使用）。正式採点は QUESTIONS のみ。
 const rawQuestions = [
   ["何かに取り組むとき、いちばんやる気が出るのは？",
     ["大きな成果を出せそうなとき", "素早く行動して、うまく流れに乗れたとき", "いろいろな方法を試せるとき", "一つずつ着実に進められているとき"],
@@ -225,8 +226,8 @@ const rawQuestions = [
     [F, G, V, D]]
 ];
 
-// 20問の正式採点表。Q18は表示上のみ最後に出題。
-const QUESTIONS=[{"id":1,"text":"何かを決めるとき、最初に取る行動は？","isGroup":false,"options":[{"label":"行動して結果を見る","scores":{"melee":1,"mobility":1},"ntPoints":0},{"label":"情報を集めて決める","scores":{"shooting":1,"versatility":1},"ntPoints":0},{"label":"周囲の意見を聞く","scores":{"defense":1,"versatility":1},"ntPoints":0},{"label":"最初の印象を大切にする","scores":{"mobility":1},"ntPoints":1}]},{"id":2,"text":"初めてのことに挑戦するときは？","isGroup":false,"options":[{"label":"手順や見本を確認する","scores":{"shooting":1,"defense":1},"ntPoints":0},{"label":"試しながら覚える","scores":{"melee":1,"mobility":1},"ntPoints":0},{"label":"経験者の話を聞く","scores":{"defense":1,"versatility":1},"ntPoints":0},{"label":"全体像から方法を考える","scores":{"firepower":1,"versatility":1},"ntPoints":0}]},{"id":3,"text":"複数の作業が重なったら？","isGroup":false,"options":[{"label":"重要なものから処理する","scores":{"shooting":1,"defense":1},"ntPoints":0},{"label":"短時間で終わるものから処理する","scores":{"mobility":1},"ntPoints":0},{"label":"全体を見て並行処理する","scores":{"versatility":2},"ntPoints":0},{"label":"気になるものから着手する","scores":{"melee":1,"mobility":1},"ntPoints":0}]},{"id":4,"text":"初対面の人と話すとき、何に注目する？","isGroup":false,"options":[{"label":"相性に注目する","scores":{"melee":1},"ntPoints":1},{"label":"会話の雰囲気に注目する","scores":{"defense":1},"ntPoints":1},{"label":"表情や仕草に注目する","scores":{},"ntPoints":2},{"label":"内容や考え方に注目する","scores":{"shooting":1,"versatility":1},"ntPoints":0}]},{"id":5,"text":"友人の様子がいつもと違うときは？","isGroup":false,"options":[{"label":"すぐ声をかける","scores":{"defense":2},"ntPoints":1},{"label":"話し出すまで待つ","scores":{"defense":1},"ntPoints":0},{"label":"違いを観察して理由を考える","scores":{"shooting":1},"ntPoints":1},{"label":"普段どおり接して様子を見る","scores":{"defense":1,"versatility":1},"ntPoints":0}]},{"id":6,"text":"意見が対立したとき、どうする？","isGroup":false,"options":[{"label":"共通の目標を確認する","scores":{"firepower":1,"versatility":1},"ntPoints":0},{"label":"主張を整理して妥協点を探す","scores":{"versatility":2},"ntPoints":0},{"label":"自分の考えを率直に伝える","scores":{"melee":1,"firepower":1},"ntPoints":0},{"label":"相手の立場を理解する","scores":{"defense":1},"ntPoints":1}]},{"id":7,"text":"問題の原因がわからないときは？","isGroup":false,"options":[{"label":"一つずつ原因を確かめる","scores":{"shooting":2},"ntPoints":0},{"label":"経験から原因を推測する","scores":{"shooting":1,"mobility":1},"ntPoints":0},{"label":"別の人の視点を取り入れる","scores":{"versatility":2},"ntPoints":0},{"label":"影響が広がらないよう対処する","scores":{"defense":2},"ntPoints":0}]},{"id":8,"text":"同じ方法で何度も失敗したら？","isGroup":false,"options":[{"label":"改善を重ねる","scores":{"shooting":1,"defense":1},"ntPoints":0},{"label":"別の方法を試す","scores":{"mobility":2},"ntPoints":0},{"label":"得意な人に助言を求める","scores":{"defense":1,"versatility":1},"ntPoints":0},{"label":"距離を置いて考え直す","scores":{"shooting":1},"ntPoints":1}]},{"id":9,"text":"予想外の出来事が起きたら？","isGroup":false,"options":[{"label":"事前情報をもとに対応する","scores":{"shooting":1,"defense":1},"ntPoints":0},{"label":"現地で判断する","scores":{"mobility":2},"ntPoints":0},{"label":"周囲に尋ねる","scores":{"defense":1,"versatility":1},"ntPoints":0},{"label":"直感で方向を選ぶ","scores":{"mobility":1},"ntPoints":1}]},{"id":10,"text":"急な変更を求められたら？","isGroup":false,"options":[{"label":"手順を守って対応する","scores":{"defense":2},"ntPoints":0},{"label":"すぐ方針を切り替える","scores":{"mobility":2},"ntPoints":0},{"label":"周囲と情報を共有する","scores":{"versatility":2},"ntPoints":0},{"label":"違和感を手がかりに判断する","scores":{"mobility":1},"ntPoints":2}]},{"id":11,"text":"初めて訪れた場所で、最初に気づくのは？","isGroup":false,"options":[{"label":"人々の雰囲気を感じ取る","scores":{"defense":1},"ntPoints":2},{"label":"造りや配置に注目する","scores":{"shooting":1,"versatility":1},"ntPoints":0},{"label":"小さな変化に気づく","scores":{"shooting":1},"ntPoints":2},{"label":"今後の展開を想像する","scores":{"firepower":1},"ntPoints":1}]},{"id":12,"text":"人が多い場所では、何を意識する？","isGroup":false,"options":[{"label":"全体の雰囲気を感じ取る","scores":{"versatility":1},"ntPoints":2},{"label":"特定の人との会話に集中する","scores":{"melee":1,"defense":1},"ntPoints":0},{"label":"周囲の動きや変化を見る","scores":{"mobility":1},"ntPoints":1},{"label":"自分の目的や考えに集中する","scores":{"shooting":1,"firepower":1},"ntPoints":0}]},{"id":13,"text":"情報が少ない状況で判断するなら？","isGroup":false,"options":[{"label":"情報から筋道を立てる","scores":{"shooting":2},"ntPoints":0},{"label":"最初に浮かんだ考えを頼る","scores":{"mobility":1},"ntPoints":2},{"label":"詳しい人の意見を求める","scores":{"defense":1,"versatility":1},"ntPoints":0},{"label":"変更の余地を残す","scores":{"mobility":1,"versatility":1},"ntPoints":0}]},{"id":14,"text":"自分が役割を選ぶなら、何を重視する？","isGroup":false,"options":[{"label":"戦況を変える力を重視する","scores":{"firepower":2},"ntPoints":0},{"label":"仲間を支える力を重視する","scores":{"defense":2},"ntPoints":0},{"label":"安定した役割遂行を重視する","scores":{"versatility":2},"ntPoints":0},{"label":"独自の役割を重視する","scores":{"firepower":1},"ntPoints":1}]},{"id":15,"text":"理想のMSの戦い方は？","isGroup":false,"options":[{"label":"機動力で敵を翻弄する","scores":{"mobility":2},"ntPoints":0},{"label":"強力な武装で防御を突破する","scores":{"firepower":2},"ntPoints":0},{"label":"武装を使い分けて対応する","scores":{"versatility":2},"ntPoints":0},{"label":"接近戦で確実に仕留める","scores":{"melee":2},"ntPoints":0}]},{"id":16,"text":"MSを選ぶときに最も重視する性能は？","isGroup":false,"options":[{"label":"一対一で相手を圧倒する","scores":{"melee":2},"ntPoints":0},{"label":"遠距離から有効な攻撃を行う","scores":{"shooting":2},"ntPoints":0},{"label":"攻撃を受けても戦い続ける","scores":{"defense":2},"ntPoints":0},{"label":"幅広い役割をこなす","scores":{"versatility":2},"ntPoints":0}]},{"id":17,"text":"自分のMSに最も期待する役割は？","isGroup":false,"options":[{"label":"戦況を一変させる","scores":{"firepower":2},"ntPoints":0},{"label":"部隊全体を支える","scores":{"defense":1,"versatility":1},"ntPoints":0},{"label":"どんな任務も安定してこなす","scores":{"versatility":2},"ntPoints":0},{"label":"自分だけの役割を持つ","scores":{"firepower":1},"ntPoints":1}]},{"id":18,"text":"所属する組織で、何を最も大切にしたい？","isGroup":true,"options":[{"label":"目標・理念を重視する","scores":{},"ntPoints":0,"group":"A"},{"label":"規律・秩序を重視する","scores":{},"ntPoints":0,"group":"B"},{"label":"成果・能力の評価を重視する","scores":{},"ntPoints":0,"group":"C"},{"label":"自由意思・独立性を重視する","scores":{},"ntPoints":0,"group":"D"}]},{"id":19,"text":"大きな犠牲を伴う計画に直面したら？","isGroup":false,"options":[{"label":"大きな犠牲には反対する","scores":{"defense":1},"ntPoints":0},{"label":"理念を理解し方法を見直す","scores":{"versatility":1},"ntPoints":0},{"label":"現状を変えるため厳しい決断をする","scores":{"firepower":1},"ntPoints":0},{"label":"自分で判断する","scores":{"mobility":1},"ntPoints":0}]},{"id":20,"text":"危険を伴う任務で、最後に優先するのは？","isGroup":false,"options":[{"label":"任務を優先する","scores":{"firepower":1},"ntPoints":0},{"label":"仲間を守る","scores":{"defense":1},"ntPoints":0},{"label":"成功の見込みを見極める","scores":{"shooting":1},"ntPoints":0},{"label":"自分たちで道を決める","scores":{"mobility":1},"ntPoints":0}]}];
+// 20問の正式採点表。6軸加点は10点評価用に拡大（Q15〜17は2.5倍、他は2倍）。NT点は従来通り。Q18は最後に出題。
+const QUESTIONS=[{"id":1,"text":"何かを決めるとき、最初に取る行動は？","isGroup":false,"options":[{"label":"行動して結果を見る","scores":{"melee":2,"mobility":2},"ntPoints":0},{"label":"情報を集めて決める","scores":{"shooting":2,"versatility":2},"ntPoints":0},{"label":"周囲の意見を聞く","scores":{"defense":2,"versatility":2},"ntPoints":0},{"label":"最初の印象を大切にする","scores":{"mobility":2},"ntPoints":1}]},{"id":2,"text":"初めてのことに挑戦するときは？","isGroup":false,"options":[{"label":"手順や見本を確認する","scores":{"shooting":2,"defense":2},"ntPoints":0},{"label":"試しながら覚える","scores":{"melee":2,"mobility":2},"ntPoints":0},{"label":"経験者の話を聞く","scores":{"defense":2,"versatility":2},"ntPoints":0},{"label":"全体像から方法を考える","scores":{"firepower":2,"versatility":2},"ntPoints":0}]},{"id":3,"text":"複数の作業が重なったら？","isGroup":false,"options":[{"label":"重要なものから処理する","scores":{"shooting":2,"defense":2},"ntPoints":0},{"label":"短時間で終わるものから処理する","scores":{"mobility":2},"ntPoints":0},{"label":"全体を見て並行処理する","scores":{"versatility":4},"ntPoints":0},{"label":"気になるものから着手する","scores":{"melee":2,"mobility":2},"ntPoints":0}]},{"id":4,"text":"初対面の人と話すとき、何に注目する？","isGroup":false,"options":[{"label":"相性に注目する","scores":{"melee":2},"ntPoints":1},{"label":"会話の雰囲気に注目する","scores":{"defense":2},"ntPoints":1},{"label":"表情や仕草に注目する","scores":{},"ntPoints":2},{"label":"内容や考え方に注目する","scores":{"shooting":2,"versatility":2},"ntPoints":0}]},{"id":5,"text":"友人の様子がいつもと違うときは？","isGroup":false,"options":[{"label":"すぐ声をかける","scores":{"defense":4},"ntPoints":1},{"label":"話し出すまで待つ","scores":{"defense":2},"ntPoints":0},{"label":"違いを観察して理由を考える","scores":{"shooting":2},"ntPoints":1},{"label":"普段どおり接して様子を見る","scores":{"defense":2,"versatility":2},"ntPoints":0}]},{"id":6,"text":"意見が対立したとき、どうする？","isGroup":false,"options":[{"label":"共通の目標を確認する","scores":{"firepower":2,"versatility":2},"ntPoints":0},{"label":"主張を整理して妥協点を探す","scores":{"versatility":4},"ntPoints":0},{"label":"自分の考えを率直に伝える","scores":{"melee":2,"firepower":2},"ntPoints":0},{"label":"相手の立場を理解する","scores":{"defense":2},"ntPoints":1}]},{"id":7,"text":"問題の原因がわからないときは？","isGroup":false,"options":[{"label":"一つずつ原因を確かめる","scores":{"shooting":4},"ntPoints":0},{"label":"経験から原因を推測する","scores":{"shooting":2,"mobility":2},"ntPoints":0},{"label":"別の人の視点を取り入れる","scores":{"versatility":4},"ntPoints":0},{"label":"影響が広がらないよう対処する","scores":{"defense":4},"ntPoints":0}]},{"id":8,"text":"同じ方法で何度も失敗したら？","isGroup":false,"options":[{"label":"改善を重ねる","scores":{"shooting":2,"defense":2},"ntPoints":0},{"label":"別の方法を試す","scores":{"mobility":4},"ntPoints":0},{"label":"得意な人に助言を求める","scores":{"defense":2,"versatility":2},"ntPoints":0},{"label":"距離を置いて考え直す","scores":{"shooting":2},"ntPoints":1}]},{"id":9,"text":"予想外の出来事が起きたら？","isGroup":false,"options":[{"label":"事前情報をもとに対応する","scores":{"shooting":2,"defense":2},"ntPoints":0},{"label":"現地で判断する","scores":{"mobility":4},"ntPoints":0},{"label":"周囲に尋ねる","scores":{"defense":2,"versatility":2},"ntPoints":0},{"label":"直感で方向を選ぶ","scores":{"mobility":2},"ntPoints":1}]},{"id":10,"text":"急な変更を求められたら？","isGroup":false,"options":[{"label":"手順を守って対応する","scores":{"defense":4},"ntPoints":0},{"label":"すぐ方針を切り替える","scores":{"mobility":4},"ntPoints":0},{"label":"周囲と情報を共有する","scores":{"versatility":4},"ntPoints":0},{"label":"違和感を手がかりに判断する","scores":{"mobility":2},"ntPoints":2}]},{"id":11,"text":"初めて訪れた場所で、最初に気づくのは？","isGroup":false,"options":[{"label":"人々の雰囲気を感じ取る","scores":{"defense":2},"ntPoints":2},{"label":"造りや配置に注目する","scores":{"shooting":2,"versatility":2},"ntPoints":0},{"label":"小さな変化に気づく","scores":{"shooting":2},"ntPoints":2},{"label":"今後の展開を想像する","scores":{"firepower":2},"ntPoints":1}]},{"id":12,"text":"人が多い場所では、何を意識する？","isGroup":false,"options":[{"label":"全体の雰囲気を感じ取る","scores":{"versatility":2},"ntPoints":2},{"label":"特定の人との会話に集中する","scores":{"melee":2,"defense":2},"ntPoints":0},{"label":"周囲の動きや変化を見る","scores":{"mobility":2},"ntPoints":1},{"label":"自分の目的や考えに集中する","scores":{"shooting":2,"firepower":2},"ntPoints":0}]},{"id":13,"text":"情報が少ない状況で判断するなら？","isGroup":false,"options":[{"label":"情報から筋道を立てる","scores":{"shooting":4},"ntPoints":0},{"label":"最初に浮かんだ考えを頼る","scores":{"mobility":2},"ntPoints":2},{"label":"詳しい人の意見を求める","scores":{"defense":2,"versatility":2},"ntPoints":0},{"label":"変更の余地を残す","scores":{"mobility":2,"versatility":2},"ntPoints":0}]},{"id":14,"text":"自分が役割を選ぶなら、何を重視する？","isGroup":false,"options":[{"label":"戦況を変える力を重視する","scores":{"firepower":4},"ntPoints":0},{"label":"仲間を支える力を重視する","scores":{"defense":4},"ntPoints":0},{"label":"安定した役割遂行を重視する","scores":{"versatility":4},"ntPoints":0},{"label":"独自の役割を重視する","scores":{"firepower":2},"ntPoints":1}]},{"id":15,"text":"理想のMSの戦い方は？","isGroup":false,"options":[{"label":"機動力で敵を翻弄する","scores":{"mobility":5},"ntPoints":0},{"label":"強力な武装で防御を突破する","scores":{"firepower":5},"ntPoints":0},{"label":"武装を使い分けて対応する","scores":{"versatility":5},"ntPoints":0},{"label":"接近戦で確実に仕留める","scores":{"melee":5},"ntPoints":0}]},{"id":16,"text":"MSを選ぶときに最も重視する性能は？","isGroup":false,"options":[{"label":"一対一で相手を圧倒する","scores":{"melee":5},"ntPoints":0},{"label":"遠距離から有効な攻撃を行う","scores":{"shooting":5},"ntPoints":0},{"label":"攻撃を受けても戦い続ける","scores":{"defense":5},"ntPoints":0},{"label":"幅広い役割をこなす","scores":{"versatility":5},"ntPoints":0}]},{"id":17,"text":"自分のMSに最も期待する役割は？","isGroup":false,"options":[{"label":"戦況を一変させる","scores":{"firepower":5},"ntPoints":0},{"label":"部隊全体を支える","scores":{"defense":2,"versatility":2},"ntPoints":0},{"label":"どんな任務も安定してこなす","scores":{"versatility":5},"ntPoints":0},{"label":"自分だけの役割を持つ","scores":{"firepower":2},"ntPoints":1}]},{"id":18,"text":"所属する組織で、何を最も大切にしたい？","isGroup":true,"options":[{"label":"目標・理念を重視する","scores":{},"ntPoints":0,"group":"A"},{"label":"規律・秩序を重視する","scores":{},"ntPoints":0,"group":"B"},{"label":"成果・能力の評価を重視する","scores":{},"ntPoints":0,"group":"C"},{"label":"自由意思・独立性を重視する","scores":{},"ntPoints":0,"group":"D"}]},{"id":19,"text":"大きな犠牲を伴う計画に直面したら？","isGroup":false,"options":[{"label":"大きな犠牲には反対する","scores":{"defense":2},"ntPoints":0},{"label":"理念を理解し方法を見直す","scores":{"versatility":2},"ntPoints":0},{"label":"現状を変えるため厳しい決断をする","scores":{"firepower":2},"ntPoints":0},{"label":"自分で判断する","scores":{"mobility":2},"ntPoints":0}]},{"id":20,"text":"危険を伴う任務で、最後に優先するのは？","isGroup":false,"options":[{"label":"任務を優先する","scores":{"firepower":2},"ntPoints":0},{"label":"仲間を守る","scores":{"defense":2},"ntPoints":0},{"label":"成功の見込みを見極める","scores":{"shooting":2},"ntPoints":0},{"label":"自分たちで道を決める","scores":{"mobility":2},"ntPoints":0}]}];
 
 // 機体プロフィール：[近接,射撃,機動,防御,火力,汎用,サイコミュ依存度]
 const P={
@@ -349,7 +350,7 @@ const MACHINES=RAW.map(([id,name,profile])=>{
   id,name,profile,
   scores:Object.fromEntries(AXES.map((a,i)=>[a,p[i]])),
   ntDependence:p[6],
-  popularityBonus:POPULAR.has(id)?0.25:0,
+  popularityBonus:0,
   description:DESCRIPTIONS[id] || `${name}は診断上「${profile}」タイプとして評価している機体です。`,
    image:`images/${id}.jpg`,
    gunplaUrl:`https://www.google.com/search?q=${encodeURIComponent(name + " ガンプラ")}`
@@ -358,23 +359,73 @@ const MACHINES=RAW.map(([id,name,profile])=>{
 
 // 各機体を個別評価：[近接,射撃,機動,防御・継戦,火力・突破,汎用性] / 各0〜10点
 // 公式性能値ではなく、診断用の相対評価。プロフィール共通値ではなく機体ごとの値を使用する。
+// 各機体の個別評価：近接/射撃/機動/防御/火力/汎用、各0〜10点。
+// 旧0〜5点を 0,1.5,3.3,5.2,7.6,9.6 に変換済み。
 const INDIVIDUAL_SCORES = {
-"RX-78-2":[4,4,4,4,4,5], "RX-75-4":[1,5,1,3,4,1], "RX-77-2":[2,5,2,4,4,3], "RB-79":[1,3,2,1,2,2],
-"RGM-79":[3,3,3,3,3,5], "MS-06":[3,3,3,3,3,4], "MS-07":[5,2,4,3,3,2], "MS-09":[4,3,5,3,4,3],
-"MS-14A":[4,4,4,4,4,4], "YMS-15":[5,2,3,4,3,2], "MSM-04":[3,2,3,3,2,3], "MSM-07":[4,3,4,4,3,3],
-"MSM-10":[2,4,1,5,5,1], "MSN-02":[2,5,3,3,5,2], "MA-08":[1,5,1,5,5,1], "MAM-07":[3,3,4,3,3,1],
-"MAN-08":[1,5,3,2,4,1], "RMS-099":[4,4,4,4,3,4], "MSN-00100":[4,4,5,3,4,4], "MSK-008":[4,3,4,3,3,4],
-"MSA-005":[2,3,4,2,2,4], "MSZ-006":[4,4,5,4,4,5], "RX-178":[3,4,4,3,3,5], "RMS-108":[3,3,3,3,3,4],
-"RMS-117":[4,3,4,3,3,3], "RX-110":[3,4,5,3,4,3], "RX-139":[4,3,5,3,3,3], "RMS-154":[3,3,3,3,3,4],
-"RX-160":[3,3,5,3,4,2], "ORX-005":[3,4,5,3,4,2], "NRX-044":[3,4,4,3,4,3], "NRX-055":[3,4,3,4,4,2],
-"MRX-009":[2,5,1,5,5,1], "PMX-000":[3,4,5,3,4,3], "PMX-001":[2,5,2,4,5,2], "PMX-003":[5,4,4,5,4,3],
-"AMX-003":[2,3,3,2,3,3], "AMX-004":[3,5,4,3,4,2], "MSZ-010":[3,5,3,5,5,3], "AMA-01X":[2,4,4,3,4,2],
-"AMX-008":[3,4,4,3,4,3], "AMX-009":[5,3,3,4,4,2], "AMX-014":[3,5,3,4,5,3], "AMX-015":[3,5,3,4,5,2],
-"AMX-101":[4,3,3,3,3,3], "AMX-102":[2,4,3,3,5,2], "AMX-103":[3,4,3,3,4,2], "AMX-104":[5,3,4,3,3,3],
-"AMX-107":[4,4,4,3,4,4], "AMX-109":[3,3,3,4,3,2], "RGZ-91":[3,4,4,3,4,4], "RX-93":[4,5,4,5,4,5],
-"AMS-119":[3,3,3,3,3,4], "MSN-03":[3,4,4,3,4,2], "MSN-04":[5,5,5,4,5,4], "RX-0":[4,5,5,5,5,4],
-"RX-0-2":[4,4,5,4,5,3], "RGZ-95":[3,4,5,3,4,5], "NZ-666":[3,5,3,5,5,3], "AMS-129":[3,3,3,3,3,4],
-"MSN-06S":[5,4,5,4,5,4], "NZ-999":[2,5,1,5,5,1], "RX-105":[4,4,5,4,5,3], "TX-ff104":[3,4,3,4,5,2]
+  "RX-78-2":[7.6,7.6,7.6,7.6,7.6,9.6],
+  "RX-75-4":[1.5,9.6,1.5,5.2,7.6,1.5],
+  "RX-77-2":[3.3,9.6,3.3,7.6,7.6,5.2],
+  "RB-79":[1.5,5.2,3.3,1.5,3.3,3.3],
+  "RGM-79":[5.2,5.2,5.2,5.2,5.2,9.6],
+  "MS-06":[5.2,5.2,5.2,5.2,5.2,7.6],
+  "MS-07":[9.6,3.3,7.6,5.2,5.2,3.3],
+  "MS-09":[7.6,5.2,9.6,5.2,7.6,5.2],
+  "MS-14A":[7.6,7.6,7.6,7.6,7.6,7.6],
+  "YMS-15":[9.6,3.3,5.2,7.6,5.2,3.3],
+  "MSM-04":[5.2,3.3,5.2,5.2,3.3,5.2],
+  "MSM-07":[7.6,5.2,7.6,7.6,5.2,5.2],
+  "MSM-10":[3.3,7.6,1.5,9.6,9.6,1.5],
+  "MSN-02":[3.3,9.6,5.2,5.2,9.6,3.3],
+  "MA-08":[1.5,9.6,1.5,9.6,9.6,1.5],
+  "MAM-07":[5.2,5.2,7.6,5.2,5.2,1.5],
+  "MAN-08":[1.5,9.6,5.2,3.3,7.6,1.5],
+  "RMS-099":[7.6,7.6,7.6,7.6,5.2,7.6],
+  "MSN-00100":[7.6,7.6,9.6,5.2,7.6,7.6],
+  "MSK-008":[7.6,5.2,7.6,5.2,5.2,7.6],
+  "MSA-005":[3.3,5.2,7.6,3.3,3.3,7.6],
+  "MSZ-006":[7.6,7.6,9.6,7.6,7.6,9.6],
+  "RX-178":[5.2,7.6,7.6,5.2,5.2,9.6],
+  "RMS-108":[5.2,5.2,5.2,5.2,5.2,7.6],
+  "RMS-117":[7.6,5.2,7.6,5.2,5.2,5.2],
+  "RX-110":[5.2,7.6,9.6,5.2,7.6,5.2],
+  "RX-139":[7.6,5.2,9.6,5.2,5.2,5.2],
+  "RMS-154":[5.2,5.2,5.2,5.2,5.2,7.6],
+  "RX-160":[5.2,5.2,9.6,5.2,7.6,3.3],
+  "ORX-005":[5.2,7.6,9.6,5.2,7.6,3.3],
+  "NRX-044":[5.2,7.6,7.6,5.2,7.6,5.2],
+  "NRX-055":[5.2,7.6,5.2,7.6,7.6,3.3],
+  "MRX-009":[3.3,9.6,1.5,9.6,9.6,1.5],
+  "PMX-000":[5.2,7.6,9.6,5.2,7.6,5.2],
+  "PMX-001":[3.3,9.6,3.3,7.6,9.6,3.3],
+  "PMX-003":[9.6,7.6,7.6,9.6,7.6,5.2],
+  "AMX-003":[3.3,5.2,5.2,3.3,5.2,5.2],
+  "AMX-004":[5.2,9.6,7.6,5.2,7.6,3.3],
+  "MSZ-010":[5.2,9.6,5.2,9.6,9.6,5.2],
+  "AMA-01X":[3.3,7.6,7.6,5.2,7.6,3.3],
+  "AMX-008":[5.2,7.6,7.6,5.2,7.6,5.2],
+  "AMX-009":[9.6,5.2,5.2,7.6,7.6,3.3],
+  "AMX-014":[5.2,9.6,5.2,7.6,9.6,5.2],
+  "AMX-015":[5.2,9.6,5.2,7.6,9.6,3.3],
+  "AMX-101":[7.6,5.2,5.2,5.2,5.2,5.2],
+  "AMX-102":[3.3,7.6,5.2,5.2,9.6,3.3],
+  "AMX-103":[5.2,7.6,5.2,5.2,7.6,3.3],
+  "AMX-104":[9.6,5.2,7.6,5.2,5.2,5.2],
+  "AMX-107":[7.6,7.6,7.6,5.2,7.6,7.6],
+  "AMX-109":[5.2,5.2,5.2,7.6,5.2,3.3],
+  "RGZ-91":[5.2,7.6,7.6,5.2,7.6,7.6],
+  "RX-93":[7.6,9.6,7.6,9.6,7.6,9.6],
+  "AMS-119":[5.2,5.2,5.2,5.2,5.2,7.6],
+  "MSN-03":[5.2,7.6,7.6,5.2,7.6,3.3],
+  "MSN-04":[9.6,9.6,9.6,7.6,9.6,7.6],
+  "RX-0":[7.6,9.6,9.6,9.6,9.6,7.6],
+  "RX-0-2":[7.6,7.6,9.6,7.6,9.6,5.2],
+  "RGZ-95":[5.2,7.6,9.6,5.2,7.6,9.6],
+  "NZ-666":[5.2,9.6,5.2,9.6,9.6,5.2],
+  "AMS-129":[5.2,5.2,5.2,5.2,5.2,7.6],
+  "MSN-06S":[9.6,7.6,9.6,7.6,9.6,7.6],
+  "NZ-999":[3.3,9.6,1.5,9.6,9.6,1.5],
+  "RX-105":[7.6,7.6,9.6,7.6,9.6,5.2],
+  "TX-ff104":[5.2,7.6,5.2,7.6,9.6,3.3]
 };
 const INDIVIDUAL_NT = {
 "RX-78-2":0,"RX-75-4":0,"RX-77-2":0,"RB-79":0,"RGM-79":0,"MS-06":0,"MS-07":0,"MS-09":0,"MS-14A":0,"YMS-15":0,
@@ -393,8 +444,7 @@ MACHINES.forEach(m => {
 // 質問別採点表・機体能力値表を反映（64機、A-Dグループは確定版）
 const WORKBOOK_MACHINES=[{"scores": [4, 4, 4, 4, 4, 5], "nt": 0, "group": "D"}, {"scores": [0, 5, 1, 3, 4, 2], "nt": 0, "group": "D"}, {"scores": [2, 5, 2, 4, 4, 3], "nt": 0, "group": "D"}, {"scores": [0, 3, 1, 0, 2, 1], "nt": 0, "group": "B"}, {"scores": [3, 3, 3, 3, 2, 4], "nt": 0, "group": "B"}, {"scores": [3, 3, 3, 3, 2, 4], "nt": 0, "group": "A"}, {"scores": [5, 2, 3, 3, 3, 2], "nt": 0, "group": "A"}, {"scores": [3, 3, 5, 3, 3, 3], "nt": 0, "group": "A"}, {"scores": [4, 4, 4, 4, 4, 4], "nt": 0, "group": "A"}, {"scores": [5, 2, 4, 2, 3, 2], "nt": 0, "group": "A"}, {"scores": [3, 2, 3, 3, 2, 2], "nt": 0, "group": "A"}, {"scores": [4, 3, 4, 4, 3, 2], "nt": 0, "group": "A"}, {"scores": [1, 4, 0, 5, 4, 1], "nt": 0, "group": "A"}, {"scores": [2, 5, 4, 3, 5, 2], "nt": 3, "group": "A"}, {"scores": [1, 4, 1, 5, 5, 1], "nt": 0, "group": "A"}, {"scores": [3, 4, 4, 3, 3, 1], "nt": 0, "group": "A"}, {"scores": [1, 5, 4, 2, 4, 2], "nt": 6, "group": "A"}, {"scores": [3, 4, 3, 4, 3, 4], "nt": 0, "group": "A"}, {"scores": [4, 4, 5, 2, 3, 4], "nt": 0, "group": "A"}, {"scores": [4, 3, 3, 3, 3, 4], "nt": 0, "group": "A"}, {"scores": [2, 3, 4, 2, 2, 4], "nt": 0, "group": "A"}, {"scores": [4, 4, 5, 3, 4, 5], "nt": 1, "group": "A"}, {"scores": [3, 4, 4, 3, 3, 4], "nt": 0, "group": "B"}, {"scores": [3, 4, 3, 3, 3, 3], "nt": 0, "group": "B"}, {"scores": [4, 3, 4, 3, 3, 3], "nt": 0, "group": "B"}, {"scores": [3, 4, 4, 3, 4, 3], "nt": 0, "group": "B"}, {"scores": [4, 3, 5, 2, 3, 3], "nt": 0, "group": "B"}, {"scores": [3, 3, 4, 3, 3, 3], "nt": 0, "group": "B"}, {"scores": [4, 3, 5, 3, 3, 2], "nt": 0, "group": "B"}, {"scores": [3, 4, 5, 3, 4, 2], "nt": 0, "group": "B"}, {"scores": [3, 3, 4, 4, 3, 3], "nt": 0, "group": "B"}, {"scores": [3, 4, 3, 4, 4, 2], "nt": 3, "group": "B"}, {"scores": [2, 4, 1, 5, 5, 1], "nt": 4, "group": "C"}, {"scores": [3, 4, 5, 3, 4, 3], "nt": 0, "group": "C"}, {"scores": [2, 5, 2, 4, 5, 2], "nt": 0, "group": "C"}, {"scores": [5, 3, 4, 5, 3, 3], "nt": 2, "group": "C"}, {"scores": [2, 3, 3, 2, 2, 3], "nt": 0, "group": "A"}, {"scores": [3, 5, 5, 3, 4, 3], "nt": 5, "group": "A"}, {"scores": [3, 4, 2, 4, 5, 3], "nt": 1, "group": "A"}, {"scores": [2, 4, 4, 2, 4, 2], "nt": 0, "group": "A"}, {"scores": [3, 3, 4, 3, 3, 3], "nt": 0, "group": "A"}, {"scores": [5, 2, 3, 4, 3, 2], "nt": 0, "group": "A"}, {"scores": [2, 5, 3, 3, 5, 3], "nt": 3, "group": "A"}, {"scores": [2, 5, 2, 4, 5, 2], "nt": 5, "group": "A"}, {"scores": [5, 2, 3, 3, 3, 2], "nt": 0, "group": "A"}, {"scores": [1, 4, 3, 2, 5, 2], "nt": 0, "group": "A"}, {"scores": [3, 4, 3, 3, 4, 3], "nt": 3, "group": "A"}, {"scores": [5, 3, 4, 3, 3, 3], "nt": 0, "group": "A"}, {"scores": [3, 4, 5, 3, 4, 4], "nt": 0, "group": "A"}, {"scores": [4, 2, 3, 4, 2, 2], "nt": 0, "group": "A"}, {"scores": [3, 4, 4, 3, 3, 3], "nt": 0, "group": "D"}, {"scores": [4, 5, 4, 4, 4, 5], "nt": 4, "group": "D"}, {"scores": [3, 3, 3, 3, 3, 4], "nt": 0, "group": "A"}, {"scores": [3, 4, 4, 3, 4, 3], "nt": 4, "group": "A"}, {"scores": [5, 5, 4, 4, 5, 4], "nt": 4, "group": "A"}, {"scores": [4, 4, 4, 4, 5, 3], "nt": 5, "group": "D"}, {"scores": [5, 4, 4, 4, 5, 3], "nt": 5, "group": "C"}, {"scores": [3, 3, 4, 3, 3, 4], "nt": 0, "group": "B"}, {"scores": [3, 5, 3, 5, 5, 3], "nt": 5, "group": "C"}, {"scores": [3, 3, 3, 3, 3, 4], "nt": 0, "group": "C"}, {"scores": [5, 4, 5, 4, 4, 4], "nt": 1, "group": "C"}, {"scores": [1, 5, 1, 5, 5, 1], "nt": 6, "group": "C"}, {"scores": [4, 4, 5, 4, 4, 4], "nt": 0, "group": "D"}, {"scores": [3, 4, 4, 3, 4, 3], "nt": 2, "group": "B"}];
 if(MACHINES.length!==WORKBOOK_MACHINES.length) throw Error("機体数が一致しません");
-// 旧0〜10評価を新0〜10評価に変換。低能力機の特徴も残す。
-const SCORE_SCALE=[0,1.5,3.3,5.2,7.6,9.6];
+// INDIVIDUAL_SCORES は既に0〜10点へ変換済み。再変換はしない。
 // 同じ旧評価でも機体固有の長所・弱点を区別する（順序：近接/射撃/機動/防御/火力/汎用）
 const MACHINE_TUNING={
  'RX-78-2':[0,0,0,0,0,0.3], 'RX-75':[-0.2,0,0,0,0,0],
@@ -410,7 +460,7 @@ const MACHINE_TUNING={
 MACHINES.forEach((m,i)=>{
  const d=WORKBOOK_MACHINES[i];
  const tuning=MACHINE_TUNING[m.id]||[0,0,0,0,0,0];
- m.scores=Object.fromEntries(AXES.map((axis,k)=>[axis,Math.max(0,Math.min(10,SCORE_SCALE[d.scores[k]]+tuning[k]))]));
+ m.scores=Object.fromEntries(AXES.map((axis,k)=>[axis,Math.max(0,Math.min(10,(INDIVIDUAL_SCORES[m.id][k]+tuning[k])))]));
  m.ntDependence=d.nt;
  m.group=d.group;
 });
@@ -443,12 +493,15 @@ const AXIS_BASELINES=Object.fromEntries(AXES.map(axis=>{
  return [axis,{mean,sd:Math.sqrt(variance)}];
 }));
 function normalize(scores){
- // 回答の期待値を5点、平均との差1標準偏差を2.1点として0〜10に変換。
- // 軸ごとに質問数が違っても同じ基準で比較できる。
+ // 全軸3点スタート。各軸の回答期待値を基準にした伸びを併用し、
+ // 高得点への到達を少し緩やかにし、極端な高得点への集中を抑える。
  return Object.fromEntries(AXES.map(axis=>{
   const {mean,sd}=AXIS_BASELINES[axis];
-  const value=5+2.1*(scores[axis]-mean)/(sd||1);
-  return [axis,Math.max(0,Math.min(10,value))];
+  const relative=(scores[axis]-mean)/(sd||1);
+  const accumulated=Math.max(0,scores[axis]);
+  const base=3+7*(1-Math.exp(-accumulated/7.5));
+  const value=base+0.45*relative;
+  return [axis,Math.max(3,Math.min(10,value))];
  }));
 }
 function compatibility(user,m){
@@ -486,15 +539,22 @@ function machinePattern(m,index){
 }
 // 機体ごとの出現機会を補正。無作為回答で出現しにくい機体を過度に不利にしない。
 // 補正は回答に関係なく固定で、同じ回答なら同じ結果となる。
-const MACHINE_BALANCE_BONUSES=[0.223,2.885,-0.31,3.625,-2.835,-3.05,3.456,-0.708,5.702,-0.017,-0.073,1.011,3.119,2.091,3.272,0.469,1.122,0.18,1.42,-0.779,-1.313,4.152,1.959,-0.915,-0.027,2.71,0.942,0.507,1.043,2.32,-1.588,-1.855,2.619,-0.976,1.443,-0.844,-0.017,1.846,-0.798,1.252,-0.645,0.087,-0.054,-0.604,3.5359999999999996,1.533,-2.014,0.344,3.31,-2.004,-2.066,1.563,-2.977,0.606,5.116,-0.77,0.654,0.004,1.301,-4.156,3.155,5.259,1.639,2.017];
+const MACHINE_BALANCE_BONUSES=[-1.337,8,3.588,8,1.235,0.049,6.381,2.659,2.291,4.756,5.993,1.76,6.69,3.732,8,6.091,4.715,1.669,1.073,2.291,2.499,-2.737,-1.356,1.558,1.342,1.295,1.14,1.136,3.801,3.23,1.373,-0.559,8,0.838,5.192,-1.32,5.946,0.983,-0.524,4.041,2.981,3.237,-0.481,0.577,4.459,4.61,2.908,3.712,3.938,2.343,2.869,-1.686,0.469,2.719,-0.578,-1.572,-0.989,-1.531,0.039,-1.075,-0.273,7.688,1.643,0.266];
+// 主役級・象徴的な高性能機は、相性が十分に高い回答で選ばれやすくする。
+// 人気加点ではなく、候補の最終相性点への小さな減点（能力値そのものは変更しない）。
+const FLAGSHIP_DIFFICULTY={
+ "RX-78-2":0.8, "MSZ-006":0.5, "MSZ-010":0.4,
+ "RX-93":0.7, "MSN-04":0.4, "RX-0":0.6,
+ "RX-0-2":0.5, "MSN-06S":0.5, "RX-105":0.5
+};
 MACHINES.forEach((m,i)=>{m.pattern=machinePattern(m,i);m.balanceBonus=MACHINE_BALANCE_BONUSES[i]});
 function scoreCandidate(answers,user,nt,m){
- const ntAffinity=Math.min(3,Math.max(0,nt-2)*0.09*m.ntDependence);
+ const ntAffinity=Math.min(4.1,Math.max(0,nt-2)*0.115*m.ntDependence);
  const patternPoints=m.pattern.reduce((sum,p)=>sum+(answers[p.q]===p.choice?p.weight:0),0);
  // 同系統の近接機を行動パターンで分離する。
  const specialist=(m.name==='グフ'&&answers[6]===1&&answers[9]===1?3.0:0)
   +(m.name==='ガルスJ'&&answers[6]===0&&answers[9]===0?3.0:0);
- return compatibility(user,m)+ntAffinity+patternPoints*1.15+specialist+m.balanceBonus+(m.popularityBonus||0)*0.7;
+ return compatibility(user,m)+ntAffinity+patternPoints*1.15+specialist+m.balanceBonus-(FLAGSHIP_DIFFICULTY[m.id]||0);
 }
 function diagnose(answers){
  if(answers.length!==QUESTIONS.length||answers.some(a=>!Number.isInteger(a)||a<0||a>3))
@@ -591,7 +651,6 @@ const labels=AXES.map(a=>[a,r.user[a]]);
    const number=document.createElement("span");number.textContent=value.toFixed(1);
    row.append(label,bar,number);$("stats").appendChild(row);
   });
-   $("reason").textContent=`6つの戦闘傾向を判定。グループ${r.group}の候補${r.candidateCount}機から、能力値と回答パターンの総合相性が最も高い1機を選出しました。`;
   $("quiz").classList.add("hidden");$("result").classList.remove("hidden");
  }catch(e){alert(e.message);}
 }
