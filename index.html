@@ -19,7 +19,7 @@ button{font:inherit;cursor:pointer;border-radius:2px;padding:13px 18px;border:1p
 @media(max-width:560px){main{padding:16px 12px 48px}.panel{padding:21px 17px}.topline{font-size:9px}.meta-grid{gap:6px}.meta-cell strong{font-size:20px}.meta-cell span{font-size:10px}.stat{grid-template-columns:93px 1fr 36px;gap:8px}.answer{padding:12px;gap:11px}.answer .letter{flex-basis:33px;height:33px}.row button{flex:1}.row button:first-child{flex:0 0 auto}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 
-</style>
+.stream-links{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 22px}.stream-links a{display:inline-block;border:1px solid #43818b;color:#92e5e9;padding:11px 15px;text-decoration:none;background:#102936;border-radius:4px;font-size:13px}.stream-links a:hover{background:#1c4856}#saveReport{margin:10px 0}#sourceTitle{font-size:18px;font-weight:700;color:#d4faff}</style>
 </head>
 <body>
 <main>
@@ -27,7 +27,7 @@ button{font:inherit;cursor:pointer;border-radius:2px;padding:13px 18px;border:1p
 <header><div class="eyebrow">EARTH SPHERE // PERSONALITY ASSESSMENT</div><h1>機動戦士ガンダム<br><span>宇宙世紀 MS診断</span></h1><p class="lead">20の設問からパイロットとしての特性を解析し あなたに適合するモビルスーツを1機選出します</p></header>
 <section id="intro" class="panel"><div class="kicker">01 // SYSTEM BRIEFING</div><h2>パイロット適性診断</h2><p class="muted">あなたの判断傾向と戦闘スタイルをもとに適合機体を分析します 直感に近い選択肢を選んでください</p><div class="meta-grid"><div class="meta-cell"><strong>20</strong><span>QUESTIONS</span></div><div class="meta-cell"><strong>04</strong><span>CHOICES</span></div><div class="meta-cell"><strong>01</strong><span>RESULT</span></div></div><button class="primary start-btn" id="start">診断を開始する　▸</button><p class="muted" style="font-size:12px;margin:16px 0 0">※ 機体性能は診断用の独自評価であり公式の数値ではありません</p></section>
 <section id="quiz" class="panel hidden"><div class="kicker">02 // RESPONSE INPUT</div><div class="quiz-status"><span id="counter">Q1 / 20</span><span id="answered" class="muted">回答済み 0 / 20</span></div><div class="progress" role="progressbar" aria-label="診断の進捗"><div id="progress" style="width:0%"></div></div><div class="question-number">PILOT PROFILE // SELECT ONE</div><h2 id="question"></h2><p id="hint" class="muted"></p><div id="answers" class="answers"></div><div class="row"><button id="back">← 戻る</button><button id="next" class="primary">次の質問 →</button></div></section>
-<section id="result" class="panel hidden" aria-live="polite"><div class="result-heading"><div class="kicker">03 // ANALYSIS COMPLETE</div><span class="result-mark">MATCH CONFIRMED</span></div><h2>適合モビルスーツ</h2><div id="machineName" class="big"></div><p id="machineId"></p><img id="machineImage" class="machine-image" alt="" hidden><p id="imageNotice" class="muted" hidden></p><div class="section-line"></div><div class="kicker">UNIT INFORMATION</div><h3>機体解説</h3><p id="description"></p><p><a id="gunplaLink" class="gunpla-link" href="#" target="_blank" rel="noopener noreferrer">このMSのガンプラを探す ↗</a></p><div class="section-line"></div><div class="kicker">COMBAT PROFILE</div><h3>あなたの戦闘傾向</h3><div id="stats"></div><div class="section-line"></div><button id="restart" class="primary start-btn">もう一度診断する ↻</button></section>
+<section id="result" class="panel hidden" aria-live="polite"><div class="result-heading"><div class="kicker">03 // ANALYSIS COMPLETE</div><span class="result-mark">MATCH CONFIRMED</span></div><h2>適合モビルスーツ</h2><div id="machineName" class="big"></div><p id="machineId"></p><img id="machineImage" class="machine-image" alt="" hidden><p id="imageNotice" class="muted" hidden></p><div class="section-line"></div><div class="kicker">UNIT INFORMATION</div><h3>機体解説</h3><p id="description"></p><p><a id="gunplaLink" class="gunpla-link" href="#" target="_blank" rel="noopener noreferrer">このMSのガンプラを探す ↗</a></p><div class="section-line"></div><div class="kicker">COMBAT PROFILE</div><h3>あなたの戦闘傾向</h3><div id="stats"></div><div class="section-line"></div><div class="kicker">SOURCE / STREAMING</div><h3>登場作品</h3><p id="sourceTitle"></p><p class="muted" id="sourceNote"></p><div id="streamLinks" class="stream-links"></div><div class="section-line"></div><div class="kicker">EXPORT PILOT REPORT</div><p class="muted">機体名・画像・解説・6軸数値・登場作品を1枚の画像に保存できます</p><button id="saveReport" class="primary start-btn" type="button">診断結果をPNG画像で保存 ↓</button><p id="exportMessage" class="muted" aria-live="polite"></p><div class="section-line"></div><button id="restart" class="primary start-btn">もう一度診断する ↻</button></section>
 <footer>U.C. MOBILE SUIT ANALYSIS // PERSONALITY DIAGNOSTIC</footer>
 </main>
 
@@ -548,9 +548,68 @@ $("hint").textContent="最も自分に近い選択肢を選んでください。
  $("next").textContent=current===QUESTIONS.length-1?"診断結果を表示 →":"次の質問 →";
  $("next").disabled=answers[qIndex]===null;
 }
+// 登場作品データ。複数作品に登場する機体は代表的な初出・主要登場作品を表示。
+const WORK_TITLES={
+ OYW:"機動戦士ガンダム",Z:"機動戦士Ζガンダム",ZZ:"機動戦士ガンダムΖΖ",
+ CCA:"機動戦士ガンダム 逆襲のシャア",UC:"機動戦士ガンダムUC",
+ HATHAWAY:"機動戦士ガンダム 閃光のハサウェイ",GQUUUUX:"機動戦士Gundam GQuuuuuuX"
+};
+const WORK_BY_ID={};
+function assignWork(key,ids){ids.split(' ').forEach(id=>WORK_BY_ID[id]=WORK_TITLES[key]);}
+assignWork('OYW','RX-78-2 RX-75-4 RX-77-2 RB-79 RGM-79 MS-06F MS-07B MS-09 MS-14A YMS-15 MSM-04 MSM-07 MSM-10 MSN-02 MA-08 MAM-07 MAN-08');
+assignWork('Z','RMS-099 MSN-00100 MSK-008 MSA-005 MSZ-006 RX-178 RMS-108 RMS-117 RX-110 RX-139 RMS-154 RX-160 ORX-005 NRX-044 NRX-055 MRX-009 PMX-000 PMX-001 PMX-003 AMX-003 AMX-004');
+assignWork('ZZ','MSZ-010 AMA-01X AMX-008 AMX-009 AMX-014 AMX-015 AMX-101 AMX-102 AMX-103 AMX-104 AMX-107 AMX-109');
+assignWork('CCA','RGZ-91 RX-93 AMS-119 MSN-03 MSN-04');
+assignWork('UC','RX-0 RX-0-2 RGZ-95 NZ-666 AMS-129 MSN-06S NZ-999');
+assignWork('HATHAWAY','RX-105');
+assignWork('GQUUUUX','TX-ff104');
+// 型式番号の表記違いに備えて、既存の機体名から代表作品を補完する。
+const WORK_BY_NAME={"ガンダム":"機動戦士ガンダム","ガンタンク":"機動戦士ガンダム","ガンキャノン":"機動戦士ガンダム","ボール":"機動戦士ガンダム","ジム":"機動戦士ガンダム","ザクII":"機動戦士ガンダム","グフ":"機動戦士ガンダム","ドム":"機動戦士ガンダム","ゲルググ":"機動戦士ガンダム","ギャン":"機動戦士ガンダム","アッガイ":"機動戦士ガンダム","ズゴック":"機動戦士ガンダム","ゾック":"機動戦士ガンダム","ジオング":"機動戦士ガンダム","ビグ・ザム":"機動戦士ガンダム","グラブロ":"機動戦士ガンダム","エルメス":"機動戦士ガンダム"};
+function getWork(m){return WORK_BY_ID[m.id]||WORK_BY_NAME[m.name]||'登場作品を確認中';}
+function updateWorkLinks(m){
+ const work=getWork(m);$("sourceTitle").textContent=work;
+ $("sourceNote").textContent='配信先・配信状況は変動します。以下は作品の検索リンクです（視聴可能とは限りません）。';
+ const links=$("streamLinks");links.replaceChildren();
+ for(const [label,q] of [['配信サービスを探す',work+' 配信 視聴'],['バンダイチャンネル',work+' site:bn-broadcast.jp OR site:bandainamcoarts-channel.com OR site:bandainamcoarts.jp'],['U-NEXT',work+' U-NEXT'],['Amazon Prime Video',work+' Prime Video']]){
+  const a=document.createElement('a');a.href='https://www.google.com/search?q='+encodeURIComponent(q);a.target='_blank';a.rel='noopener noreferrer';a.textContent=label+' ↗';links.appendChild(a);
+ }
+}
+function wrapCanvasText(ctx,str,x,y,maxWidth,lineHeight,maxLines){
+ let line='',n=0;for(const ch of str){if(ctx.measureText(line+ch).width>maxWidth&&line){ctx.fillText(line,x,y+n*lineHeight);n++;line='';if(n>=maxLines)return y+n*lineHeight;}line+=ch;}if(line){ctx.fillText(line,x,y+n*lineHeight);n++;}return y+n*lineHeight;
+}
+function canvasRoundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
+async function exportResultImage(){
+ const btn=$("saveReport"),status=$("exportMessage");btn.disabled=true;status.textContent='レポート画像を生成しています…';
+ try{
+  const m=window.lastDiagnosedMachine,r=window.lastDiagnosis;if(!m||!r)throw Error('診断結果がありません');
+  const c=document.createElement('canvas');c.width=1080;c.height=1600;const g=c.getContext('2d');
+  g.fillStyle='#071522';g.fillRect(0,0,1080,1600);
+  g.strokeStyle='#2a7581';g.lineWidth=3;g.strokeRect(34,34,1012,1532);
+  g.fillStyle='#67e4e7';g.font='bold 24px monospace';g.fillText('U.C. PILOT ASSESSMENT SYSTEM',70,94);
+  g.strokeStyle='#315666';g.beginPath();g.moveTo(70,118);g.lineTo(1010,118);g.stroke();
+  g.fillStyle='#a9c5d1';g.font='26px sans-serif';g.fillText('あなたのMSは',70,174);
+  g.fillStyle='#ffffff';g.font='bold 57px sans-serif';let name=m.name;while(g.measureText(name).width>930&&parseInt(g.font)>31){g.font='bold '+(parseInt(g.font)-2)+'px sans-serif';}g.fillText(name,70,245);
+  g.fillStyle='#f3c87c';g.font='bold 28px monospace';g.fillText(m.id,72,291);
+  g.fillStyle='#102c3a';canvasRoundRect(g,70,322,940,505,14);g.fill();g.strokeStyle='#326778';g.stroke();
+  const img=$("machineImage");let imgDrawn=false;
+  if(img.complete&&img.naturalWidth>0){try{const scale=Math.min(895/img.naturalWidth,470/img.naturalHeight);g.drawImage(img,540-img.naturalWidth*scale/2,574-img.naturalHeight*scale/2,img.naturalWidth*scale,img.naturalHeight*scale);imgDrawn=true;}catch(e){/* security/CORS fallback */}}
+  if(!imgDrawn){g.fillStyle='#8daebc';g.font='25px sans-serif';g.textAlign='center';g.fillText('MS IMAGE NOT AVAILABLE',540,567);g.font='21px sans-serif';g.fillText('画像ファイルをimagesフォルダに配置してください',540,607);g.textAlign='left';}
+  g.fillStyle='#6be0e6';g.font='bold 25px monospace';g.fillText('UNIT INFORMATION',70,878);
+  g.fillStyle='#d6e8ee';g.font='23px sans-serif';wrapCanvasText(g,m.description,70,920,925,34,5);
+  g.fillStyle='#6be0e6';g.font='bold 25px monospace';g.fillText('COMBAT PROFILE',70,1120);
+  AXES.forEach((axis,i)=>{const y=1165+i*48,val=Math.max(0,Math.min(10,r.user[axis]));g.fillStyle='#c8e0e7';g.font='21px sans-serif';g.fillText(LABELS[axis],72,y);g.fillStyle='#193845';g.fillRect(286,y-20,600,22);g.fillStyle='#57d4df';g.fillRect(286,y-20,600*val/10,22);g.fillStyle='#ffffff';g.font='bold 22px monospace';g.fillText(val.toFixed(1),911,y);});
+  g.strokeStyle='#315666';g.beginPath();g.moveTo(70,1465);g.lineTo(1010,1465);g.stroke();
+  g.fillStyle='#7ce0e8';g.font='bold 22px sans-serif';g.fillText('登場作品：'+getWork(m),70,1510);
+  const blob=await new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(Error('画像生成に失敗しました')),'image/png'));
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='MS診断_'+m.id.replace(/[^a-zA-Z0-9-]/g,'_')+'.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);status.textContent='PNG画像を保存しました';
+ }catch(e){status.textContent='保存できませんでした：'+e.message+'（画像の配置やブラウザの制限を確認してください）';}finally{btn.disabled=false;}
+}
+$("saveReport").addEventListener('click',exportResultImage);
+
 function showResult(){
  try{
   const r=diagnose(answers), m=r.machine;
+  window.lastDiagnosis=r;window.lastDiagnosedMachine=m;updateWorkLinks(m);
   $("machineName").textContent=m.name;
   $("machineId").textContent=m.id;
   $("description").textContent=m.description;
