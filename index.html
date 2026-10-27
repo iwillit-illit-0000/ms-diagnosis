@@ -6,87 +6,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>機動戦士ガンダム宇宙世紀　MS診断</title>
 <style>
-:root{color-scheme:dark;--bg:#101820;--panel:#1b2935;--accent:#67d7ff;--text:#edf5fa;--muted:#aabac6}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;line-height:1.65}
-main{max-width:760px;margin:auto;padding:24px 16px 60px}
-h1{font-size:clamp(26px,5vw,38px);line-height:1.3}
-h2{font-size:22px}
-.sub,.muted{color:var(--muted)}
-.panel{background:var(--panel);border:1px solid #354957;border-radius:14px;padding:22px;margin:18px 0}
-button{font:inherit;cursor:pointer;border-radius:9px;padding:12px 16px;border:1px solid #526a7b;background:#263b4b;color:var(--text)}
-button:hover{border-color:var(--accent)}
-button:focus-visible{outline:3px solid var(--accent)}
-.primary{background:#087ca5;border-color:#40c8f2;font-weight:700}
-.answers{display:grid;gap:10px;margin-top:18px}
-.answer{text-align:left;padding:15px}
-.answer.selected{border:2px solid var(--accent);background:#174258}
-.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;margin-top:20px}
-.progress{height:8px;background:#334553;border-radius:8px;overflow:hidden}
-.progress div{height:100%;background:var(--accent);transition:width .2s}
-.stat{display:grid;grid-template-columns:110px 1fr 36px;gap:10px;align-items:center;margin:12px 0}
-.bar{height:10px;background:#334553;border-radius:8px;overflow:hidden}
-.bar div{height:100%;background:var(--accent)}
-.big{font-size:28px;font-weight:800}
-.machine-image{display:block;width:100%;max-width:560px;max-height:420px;object-fit:contain;margin:18px auto;border-radius:12px;background:#101820;border:1px solid #354957}
-.machine-image[hidden]{display:none}
-.gunpla-link{display:inline-block;margin:8px 0 18px;color:var(--accent);font-weight:700}
-.badge{display:inline-block;border:1px solid #557080;border-radius:99px;padding:3px 10px;margin:3px;font-size:13px}
-.hidden{display:none}
-footer{color:var(--muted);font-size:13px;margin-top:30px}
-@media(max-width:480px){main{padding:16px 12px}.panel{padding:16px}.stat{grid-template-columns:90px 1fr 30px}}
+
+:root{color-scheme:dark;--bg:#070e17;--panel:#101f2d;--accent:#68e4e9;--text:#e6f3f4;--muted:#9db5bf;--line:#315160;--amber:#f4bd66}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -25%,#153d4d 0%,transparent 65%),repeating-linear-gradient(0deg,transparent 0px,transparent 39px,#18334225 40px),#070e17;color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.65}
+body:before{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0,transparent 79px,#18334214 80px);z-index:-1}main{max-width:880px;margin:auto;padding:28px 18px 70px}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--accent);font:700 11px/1.5 ui-monospace,Consolas,monospace;letter-spacing:.15em;border-bottom:1px solid var(--line);padding-bottom:12px}.topline .signal{display:inline-flex;gap:5px;align-items:center}.signal i{display:block;width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+header{padding:30px 0 12px}header .eyebrow{color:var(--amber);font:700 12px ui-monospace,monospace;letter-spacing:.18em}h1{font-size:clamp(29px,5.5vw,48px);line-height:1.25;margin:12px 0 16px;letter-spacing:.035em}h1 span{color:var(--accent)}header .lead{max-width:620px;color:#b7cbd3;margin:0 0 12px}.sub,.muted{color:var(--muted)}
+.panel{position:relative;background:linear-gradient(155deg,#142a39f5,#0c1926f5);border:1px solid var(--line);clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px));padding:clamp(20px,4vw,34px);margin:24px 0;box-shadow:inset 0 0 0 1px #16344580,0 15px 45px #0005}.panel:before{content:'';position:absolute;top:0;left:0;width:95px;height:3px;background:var(--accent);box-shadow:0 0 16px #68e4e988}.panel:after{content:'';position:absolute;bottom:0;right:0;width:60px;height:2px;background:var(--amber)}
+h2{font-size:clamp(20px,3.8vw,27px);line-height:1.5;margin:12px 0}.kicker{font:700 11px ui-monospace,monospace;letter-spacing:.17em;color:var(--accent)}.section-line{border-top:1px solid #2e4d5c;margin:22px 0}.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:24px 0}.meta-cell{padding:12px 8px;border:1px solid var(--line);background:#0b1b29;text-align:center}.meta-cell strong{display:block;font:700 23px ui-monospace,monospace;color:var(--accent)}.meta-cell span{font-size:11px;color:var(--muted);letter-spacing:.08em}
+button{font:inherit;cursor:pointer;border-radius:2px;padding:13px 18px;border:1px solid #4d7280;background:#1a3442;color:var(--text);transition:background .16s,border-color .16s,transform .16s}button:hover:not(:disabled){border-color:var(--accent);background:#21495a}button:focus-visible{outline:2px solid var(--amber);outline-offset:3px}button:disabled{opacity:.35;cursor:not-allowed}.primary{background:#167987;border-color:var(--accent);color:#f3ffff;font-weight:800;letter-spacing:.045em}.primary:hover:not(:disabled){background:#1a95a5}.start-btn{width:100%;padding:17px}.answers{display:grid;gap:12px;margin-top:23px}.answer{display:flex;gap:15px;align-items:center;text-align:left;min-height:70px;padding:15px 17px;background:#0b1c2a;border:1px solid #365464;line-height:1.6}.answer .letter{display:grid;place-items:center;flex:0 0 37px;height:37px;border:1px solid #4b7782;color:var(--accent);font:700 17px ui-monospace,monospace}.answer .answer-text{flex:1}.answer.selected{border:1px solid var(--accent);background:#153c4a;box-shadow:inset 3px 0 0 var(--accent),0 0 0 1px #68e4e929}.answer.selected .letter{background:var(--accent);color:#08212c}.answer .check{opacity:0;color:var(--accent);font-weight:900}.answer.selected .check{opacity:1}
+.row{display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;margin-top:24px}.progress{height:9px;background:#071722;overflow:hidden;border:1px solid #315160;margin-top:14px}.progress div{height:100%;background:linear-gradient(90deg,#168d9a,#81f5e5);transition:width .2s}.quiz-status{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.quiz-status #counter{font:800 22px ui-monospace,monospace;color:var(--accent)}.quiz-status #answered{font:12px ui-monospace,monospace}.question-number{color:var(--amber);font:700 12px ui-monospace,monospace;letter-spacing:.15em;margin-top:25px}#question{margin-top:9px}#hint{font-size:13px}.stat{display:grid;grid-template-columns:115px 1fr 44px;gap:12px;align-items:center;margin:14px 0;font-size:13px}.bar{height:11px;background:#0a1a27;border:1px solid #345260;overflow:hidden}.bar div{height:100%;background:linear-gradient(90deg,#187a89,#78e5e6)}.stat .number{font:700 14px ui-monospace,monospace;text-align:right;color:var(--accent)}.big{font-size:clamp(28px,5vw,40px);font-weight:850;line-height:1.35;letter-spacing:.04em}.machine-image{display:block;width:100%;max-width:600px;max-height:430px;object-fit:contain;margin:20px auto;border:1px solid var(--line);background:radial-gradient(circle,#1b3c49,#081621 72%);padding:14px}.machine-image[hidden]{display:none}.gunpla-link{display:inline-block;margin:8px 0 18px;color:var(--accent);font-weight:700;text-underline-offset:4px}.hidden{display:none!important}#machineId{font:700 14px ui-monospace,monospace;letter-spacing:.15em;color:var(--amber)}.result-heading{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.result-mark{border:1px solid #5d776d;color:#a4e4d1;padding:5px 10px;font:700 11px ui-monospace,monospace;letter-spacing:.12em}footer{color:#819ba8;font:11px ui-monospace,monospace;letter-spacing:.1em;text-align:center;border-top:1px solid var(--line);padding-top:20px;margin-top:32px}
+@media(max-width:560px){main{padding:16px 12px 48px}.panel{padding:21px 17px}.topline{font-size:9px}.meta-grid{gap:6px}.meta-cell strong{font-size:20px}.meta-cell span{font-size:10px}.stat{grid-template-columns:93px 1fr 36px;gap:8px}.answer{padding:12px;gap:11px}.answer .letter{flex-basis:33px;height:33px}.row button{flex:1}.row button:first-child{flex:0 0 auto}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
 </style>
 </head>
 <body>
 <main>
-<header>
-<p class="sub">MOBILE SUIT PERSONALITY ANALYSIS</p>
-<h1>機動戦士ガンダム宇宙世紀　MS診断</h1>
-<p>20問の回答から、あなたの傾向に合うモビルスーツを1機診断します。</p>
-</header>
-
-<section id="intro" class="panel">
-<h2>診断について</h2>
-<ul>
-<li>全20問・各4択</li>
-<li>結果は候補MSの中から1機だけ選出</li>
-</ul>
-<p class="muted">機体の能力値は診断用の暫定評価です。公式の性能数値ではありません。</p>
-<button class="primary" id="start">診断を始める</button>
-</section>
-
-<section id="quiz" class="panel hidden">
-<div class="row" style="margin-top:0">
-<span id="counter">Q1 / 20</span>
-<span id="answered" class="muted">回答済み 0 / 20</span>
-</div>
-<div class="progress"><div id="progress" style="width:0%"></div></div>
-<h2 id="question"></h2>
-<p id="hint" class="muted"></p>
-<div id="answers" class="answers"></div>
-<div class="row">
-<button id="back">← 前の質問</button>
-<button id="next" class="primary">次の質問 →</button>
-</div>
-</section>
-
-<section id="result" class="panel hidden" aria-live="polite">
-<p class="sub">YOUR MOBILE SUIT</p>
-<h2>診断結果</h2>
-<div id="machineName" class="big"></div>
-<p id="machineId" class="muted"></p>
-<img id="machineImage" class="machine-image" alt="" hidden>
-<p id="imageNotice" class="muted" hidden></p>
-<h3>機体解説</h3>
-<p id="description"></p>
-<p><a id="gunplaLink" class="gunpla-link" href="#" target="_blank" rel="noopener noreferrer">このMSのガンプラを探す ↗</a></p>
-<h3>あなたの戦闘傾向</h3>
-<div id="stats"></div>
-
-<button id="restart" class="primary">もう一度診断する</button>
-</section>
-
-<footer>機動戦士ガンダム宇宙世紀　MS診断</footer>
+<div class="topline"><span>U.C. // PILOT ANALYSIS SYSTEM</span><span class="signal"><i></i> SYSTEM ONLINE</span></div>
+<header><div class="eyebrow">EARTH SPHERE // PERSONALITY ASSESSMENT</div><h1>機動戦士ガンダム<br><span>宇宙世紀 MS診断</span></h1><p class="lead">20の設問からパイロットとしての特性を解析し あなたに適合するモビルスーツを1機選出します</p></header>
+<section id="intro" class="panel"><div class="kicker">01 // SYSTEM BRIEFING</div><h2>パイロット適性診断</h2><p class="muted">あなたの判断傾向と戦闘スタイルをもとに適合機体を分析します 直感に近い選択肢を選んでください</p><div class="meta-grid"><div class="meta-cell"><strong>20</strong><span>QUESTIONS</span></div><div class="meta-cell"><strong>04</strong><span>CHOICES</span></div><div class="meta-cell"><strong>01</strong><span>RESULT</span></div></div><button class="primary start-btn" id="start">診断を開始する　▸</button><p class="muted" style="font-size:12px;margin:16px 0 0">※ 機体性能は診断用の独自評価であり公式の数値ではありません</p></section>
+<section id="quiz" class="panel hidden"><div class="kicker">02 // RESPONSE INPUT</div><div class="quiz-status"><span id="counter">Q1 / 20</span><span id="answered" class="muted">回答済み 0 / 20</span></div><div class="progress" role="progressbar" aria-label="診断の進捗"><div id="progress" style="width:0%"></div></div><div class="question-number">PILOT PROFILE // SELECT ONE</div><h2 id="question"></h2><p id="hint" class="muted"></p><div id="answers" class="answers"></div><div class="row"><button id="back">← 戻る</button><button id="next" class="primary">次の質問 →</button></div></section>
+<section id="result" class="panel hidden" aria-live="polite"><div class="result-heading"><div class="kicker">03 // ANALYSIS COMPLETE</div><span class="result-mark">MATCH CONFIRMED</span></div><h2>適合モビルスーツ</h2><div id="machineName" class="big"></div><p id="machineId"></p><img id="machineImage" class="machine-image" alt="" hidden><p id="imageNotice" class="muted" hidden></p><div class="section-line"></div><div class="kicker">UNIT INFORMATION</div><h3>機体解説</h3><p id="description"></p><p><a id="gunplaLink" class="gunpla-link" href="#" target="_blank" rel="noopener noreferrer">このMSのガンプラを探す ↗</a></p><div class="section-line"></div><div class="kicker">COMBAT PROFILE</div><h3>あなたの戦闘傾向</h3><div id="stats"></div><div class="section-line"></div><button id="restart" class="primary start-btn">もう一度診断する ↻</button></section>
+<footer>U.C. MOBILE SUIT ANALYSIS // PERSONALITY DIAGNOSTIC</footer>
 </main>
 
 <script>
@@ -586,19 +528,24 @@ function renderQuestion(){
  $("counter").textContent=`Q${current+1} / ${QUESTIONS.length}`;
  $("answered").textContent=`回答済み ${answers.filter(a=>a!==null).length} / ${QUESTIONS.length}`;
  $("progress").style.width=`${(current+1)/QUESTIONS.length*100}%`;
+  $("progress").parentElement.setAttribute("aria-valuenow",String(current+1));
+  $("progress").parentElement.setAttribute("aria-valuemax",String(QUESTIONS.length));
  $("question").textContent=q.text;
 $("hint").textContent="最も自分に近い選択肢を選んでください。";
  $("answers").replaceChildren();
  q.options.forEach((o,i)=>{
   const b=document.createElement("button");
   b.className="answer"+(answers[qIndex]===i?" selected":"");
-  b.textContent=String.fromCharCode(65+i)+"： "+o.label;
+  const letter=document.createElement("span");letter.className="letter";letter.textContent=String.fromCharCode(65+i);
+   const answerText=document.createElement("span");answerText.className="answer-text";answerText.textContent=o.label;
+   const check=document.createElement("span");check.className="check";check.textContent="✓";
+   b.append(letter,answerText,check);
   b.setAttribute("aria-pressed",answers[qIndex]===i?"true":"false");
   b.onclick=()=>{answers[qIndex]=i;renderQuestion();};
   $("answers").appendChild(b);
  });
  $("back").disabled=current===0;
- $("next").textContent=current===QUESTIONS.length-1?"診断結果を見る":"次の質問 →";
+ $("next").textContent=current===QUESTIONS.length-1?"診断結果を表示 →":"次の質問 →";
  $("next").disabled=answers[qIndex]===null;
 }
 function showResult(){
@@ -648,7 +595,7 @@ const labels=AXES.map(a=>[a,r.user[a]]);
    const label=document.createElement("span");label.textContent=LABELS[axis];
    const bar=document.createElement("div");bar.className="bar";
    const fill=document.createElement("div");fill.style.width=`${Math.max(0,Math.min(100,value/10*100))}%`;bar.appendChild(fill);
-   const number=document.createElement("span");number.textContent=value.toFixed(1);
+   const number=document.createElement("span");number.className="number";number.textContent=value.toFixed(1);
    row.append(label,bar,number);$("stats").appendChild(row);
   });
   $("quiz").classList.add("hidden");$("result").classList.remove("hidden");
